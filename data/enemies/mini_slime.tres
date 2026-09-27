@@ -5,21 +5,21 @@
 
 [resource]
 script = ExtResource("1_f5jfp")
-id = &"slime"
-display_name = "Slime"
+id = &"mini_slime"
+display_name = "Small Slime"
 texture = ExtResource("2_s20qs")
+max_hp = 1
+sprite_scale = 0.6
+body_radius = 4.0
 tint = Color(0.55, 0.9, 0.5, 1)
 contact_damage = true
 wander_speed = 20.0
-chase_speed = 45.0
+chase_speed = 60.0
 detect_range = 100.0
 attack_range = 40.0
 attack_windup = 0.5
 lunge_speed = 150.0
 attack_cooldown = 1.6
 knockback_taken = 1.2
-split_into = &"mini_slime"
-split_count = 2
-gold_max = 2
-loot_items = Array[StringName]([&"slime_gel", &"herbs"])
-loot_chances = Array[float]([0.8, 0.25])
+loot_items = Array[StringName]([&"slime_gel"])
+loot_chances = Array[float]([0.3])

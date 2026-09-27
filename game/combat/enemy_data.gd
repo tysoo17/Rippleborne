@@ -10,8 +10,8 @@ extends Resource
 @export var texture: Texture2D
 @export var hframes: int = 2
 @export var tint: Color = Color.WHITE
-## Height of one frame in pixels (the sprite is drawn above the feet).
-@export var frame_height: float = 20.0
+## Draw the sprite bigger or smaller (small slimes use 0.6).
+@export var sprite_scale: float = 1.0
 @export var body_radius: float = 7.0
 
 @export_group("Stats")
@@ -29,6 +29,15 @@ extends Resource
 @export var attack_cooldown: float = 1.2
 ## 1 = normal knockback, 0 = cannot be pushed.
 @export var knockback_taken: float = 1.0
+
+@export_group("Special moves")
+## Lunges in a row per attack (wolves lunge twice).
+@export var lunge_count: int = 1
+## Chance to block a normal hit (bandits). The combo finisher can't be blocked.
+@export_range(0.0, 1.0) var block_chance: float = 0.0
+## When it dies it splits into these (big slime -> small slimes).
+@export var split_into: StringName = &""
+@export var split_count: int = 0
 
 @export_group("Loot")
 @export var gold_min: int = 0

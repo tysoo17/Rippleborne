@@ -11,7 +11,7 @@ const BUSINESS_IDS: Array[StringName] = [&"farm", &"woodcutters", &"herbalists",
 const EVENT_IDS: Array[StringName] = [&"monster_infestation", &"bandit_activity"]
 const ITEM_IDS: Array[StringName] = [&"food", &"wood", &"iron", &"herbs", &"slime_gel",
 		&"wolf_pelt", &"bandit_insignia", &"health_potion"]
-const ENEMY_IDS: Array[StringName] = [&"slime", &"cave_slime", &"wolf", &"bandit"]
+const ENEMY_IDS: Array[StringName] = [&"slime", &"mini_slime", &"cave_slime", &"wolf", &"bandit"]
 ## Quiet days simulated before day 1 so markets start near their natural balance.
 const WARM_UP_DAYS := 30
 
