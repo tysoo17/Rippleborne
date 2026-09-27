@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3]
+
+[ext_resource type="Script" path="res://game/combat/enemy_data.gd" id="1_f5jfp"]
+[ext_resource type="Texture2D" path="res://assets/sprites/slime_sheet.png" id="2_s20qs"]
+
+[resource]
+script = ExtResource("1_f5jfp")
+id = &"slime"
+display_name = "Slime"
+texture = ExtResource("2_s20qs")
+tint = Color(0.55, 0.9, 0.5, 1)
+contact_damage = true
+wander_speed = 20.0
+chase_speed = 45.0
+detect_range = 100.0
+attack_range = 40.0
+attack_windup = 0.5
+lunge_speed = 150.0
+attack_cooldown = 1.6
+knockback_taken = 1.2
+gold_max = 2
+loot_items = Array[StringName]([&"slime_gel", &"herbs"])
+loot_chances = Array[float]([0.8, 0.25])

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SettlementData" format=3]
+
+[ext_resource type="Script" path="res://game/economy/settlement_data.gd" id="1_i5icq"]
+
+[resource]
+script = ExtResource("1_i5icq")
+id = &"town"
+display_name = "Town"
+population = 120
+demand_per_day = {
+&"food": 22.0,
+&"herbs": 4.0,
+&"iron": 2.0,
+&"wood": 6.0
+}

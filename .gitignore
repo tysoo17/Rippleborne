@@ -4,3 +4,6 @@
 
 # Exports
 /build/
+
+# Local capture scenes used for screenshots
+/_capture/

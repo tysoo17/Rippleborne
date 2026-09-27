@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="BusinessData" format=3]
+
+[ext_resource type="Script" path="res://game/economy/business_data.gd" id="1_5hkyu"]
+
+[resource]
+script = ExtResource("1_5hkyu")
+id = &"mine"
+display_name = "Mine"
+settlement_id = &"village"
+output_commodity = &"iron"
+output_per_day = 20.0
+stopped_by = &"mine_infested"
+needs_fed_workers = true

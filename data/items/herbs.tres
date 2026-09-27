@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/icons/herbs.png" id="1_l8f7k"]
+[ext_resource type="Script" path="res://game/items/item_data.gd" id="2_us18e"]
+
+[resource]
+script = ExtResource("2_us18e")
+id = &"herbs"
+display_name = "Herbs"
+description = "Healing plants from the forest. Potions are made from them."
+icon = ExtResource("1_l8f7k")
+base_value = 6
+commodity_id = &"herbs"

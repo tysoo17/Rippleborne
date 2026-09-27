@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EventData" format=3]
+
+[ext_resource type="Script" path="res://game/world/event_data.gd" id="1_c1em3"]
+
+[resource]
+script = ExtResource("1_c1em3")
+id = &"monster_infestation"
+display_name = "Monster Infestation"
+base_chance = 0.12
+chance_growth_per_day = 0.06
+cooldown_days = 12
+min_duration = 22
+max_duration = 32
+start_news = "Monsters have overrun the mine! The miners fled and no iron is coming out."
+end_news_natural = "The village militia finally drove the monsters out of the mine."
+end_news_player = "You cleared the mine! The miners are going back to work."

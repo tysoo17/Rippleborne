@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/icons/food.png" id="1_bupxc"]
+[ext_resource type="Script" path="res://game/items/item_data.gd" id="2_wdngh"]
+
+[resource]
+script = ExtResource("2_wdngh")
+id = &"food"
+display_name = "Food"
+description = "Bread, meat and vegetables. Everyone needs it every day."
+icon = ExtResource("1_bupxc")
+base_value = 4
+commodity_id = &"food"

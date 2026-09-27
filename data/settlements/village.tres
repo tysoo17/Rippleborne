@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SettlementData" format=3]
+
+[ext_resource type="Script" path="res://game/economy/settlement_data.gd" id="1_3r354"]
+
+[resource]
+script = ExtResource("1_3r354")
+id = &"village"
+display_name = "Mining Village"
+population = 40
+demand_per_day = {
+&"food": 9.0,
+&"herbs": 1.0,
+&"iron": 3.0,
+&"wood": 4.0
+}

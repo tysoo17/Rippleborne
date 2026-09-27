@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://game/economy/sandbox/economy_sandbox.gd" id="1_script"]
 [ext_resource type="Theme" path="res://game/ui/debug_theme.tres" id="2_theme"]
-[ext_resource type="Script" path="res://game/economy/sandbox/price_chart.gd" id="3_chart"]
+[ext_resource type="Script" path="res://game/ui/price_chart.gd" id="3_chart"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
 content_margin_left = 6.0
@@ -58,13 +58,17 @@ layout_mode = 2
 
 [node name="Title" type="Label" parent="Margin/VBox/Header"]
 layout_mode = 2
-text = "ECONOMY SANDBOX: IRON"
+text = "ECONOMY SANDBOX"
+
+[node name="CommodityPicker" type="OptionButton" parent="Margin/VBox/Header"]
+unique_name_in_owner = true
+layout_mode = 2
 
 [node name="StatusLabel" type="Label" parent="Margin/VBox/Header"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Day 0    Mine: safe"
+text = "Day 1"
 horizontal_alignment = 2
 
 [node name="Body" type="HBoxContainer" parent="Margin/VBox"]
@@ -115,6 +119,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 10
 text = "No days simulated yet."
+autowrap_mode = 3
 
 [node name="Buttons" type="HBoxContainer" parent="Margin/VBox"]
 layout_mode = 2
@@ -140,6 +145,12 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 text = "Infest mine"
+
+[node name="BanditButton" type="Button" parent="Margin/VBox/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Bandits"
 
 [node name="Spacer" type="Control" parent="Margin/VBox/Buttons"]
 layout_mode = 2
