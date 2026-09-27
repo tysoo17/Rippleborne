@@ -83,5 +83,5 @@ debug_advance_30_days={
 textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
-2d/snap/snap_2d_transforms_to_pixel=true
 environment/defaults/default_clear_color=Color(0.105882, 0.105882, 0.141176, 1)
+2d/snap/snap_2d_transforms_to_pixel=true
