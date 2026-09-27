@@ -16,6 +16,11 @@ An indie economic game: pixel 2D 3/4 top-down, system-driven RPG. Single-player,
 | WASD / mũi tên | Di chuyển |
 | F1 / F2 / F3 | (debug) Tua +1 giờ / +1 ngày / +30 ngày |
 
+Sandbox kinh tế: mở `game/economy/sandbox/economy_sandbox.tscn`, bấm **F6**.
+
+Test tự động: mở `tests/test_economy.tscn`, bấm **F6** và xem kết quả ở tab Output. Hoặc chạy
+trong terminal: `godot --headless --path . tests/test_economy.tscn`.
+
 ## Cấu trúc thư mục
 
 ```text
@@ -45,5 +50,5 @@ NOT_NOW.md          Ý tưởng để dành, chưa làm trong v0.1
 ## Tiến độ
 
 - [x] Tuần 1: Foundation ([giải thích](docs/huong-dan/01-foundation.md))
-- [ ] Sandbox kinh tế (1 hàng hóa, 2 chợ, qua ngày, quái chiếm/dọn mỏ)
+- [x] Sandbox kinh tế: sắt, 2 chợ, quái chiếm/dọn mỏ ([giải thích](docs/huong-dan/02-economy-sandbox.md))
 - [ ] Tuần 2: Combat
