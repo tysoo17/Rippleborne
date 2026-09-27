@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://game/player/player.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player_sheet.png" id="2_sheet"]
-[ext_resource type="Texture2D" path="res://assets/sprites/slash.png" id="3_slash"]
+[ext_resource type="Texture2D" path="res://assets/sprites/slash_sheet.png" id="3_slash"]
 [ext_resource type="Script" path="res://game/combat/hurtbox.gd" id="4_hurtbox"]
 [ext_resource type="Script" path="res://game/combat/hitbox.gd" id="5_hitbox"]
 

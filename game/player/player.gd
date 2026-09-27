@@ -8,28 +8,58 @@ extends CharacterBody2D
 const ROWS := [Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT, Vector2.UP]
 const WALK_FRAMES := 4
 const WALK_FRAME_TIME := 0.13
+const SLASH_FRAMES := 4
+## Height of the sword arm above the feet.
+const HAND_HEIGHT := 14.0
 
+@export_group("Movement")
 @export var speed: float = 120.0
+## How fast the character reaches full speed (pixels/s per second).
+@export var acceleration: float = 1300.0
+## How fast the character stops when you let go.
+@export var friction: float = 1500.0
 @export var dash_speed: float = 330.0
 @export var dash_time: float = 0.16
 @export var dash_cooldown: float = 0.7
+## How far the camera looks ahead in the walking direction.
+@export var camera_lead: float = 22.0
+
+@export_group("Attack")
 @export var attack_time: float = 0.14
-@export var attack_cooldown: float = 0.32
+@export var attack_cooldown: float = 0.26
+## After a swing, pressing attack within this time continues the combo.
+@export var combo_window: float = 0.45
+## Pressing attack this early (before the cooldown ends) still counts.
+@export var input_buffer: float = 0.15
 @export var attack_reach: float = 18.0
 @export var attack_knockback: float = 170.0
+## Small step forward with every swing.
+@export var attack_step: float = 90.0
+
+@export_group("Getting hurt")
 @export var hurt_invincibility: float = 0.8
 ## Share of gold lost when knocked out.
 @export var knockout_gold_loss: float = 0.2
 
 var facing: Vector2 = Vector2.DOWN
+## 0, 1 or 2: which swing of the combo comes next. The third one is strong.
+var combo_step: int = 0
 
 var _walk_time: float = 0.0
+var _dust_timer: float = 0.0
 var _attack_left: float = 0.0
 var _attack_ready_in: float = 0.0
+var _attack_direction: Vector2 = Vector2.DOWN
+var _combo_left: float = 0.0
+var _buffered_attack: bool = false
+var _buffered_with_mouse: bool = false
 var _dash_left: float = 0.0
 var _dash_ready_in: float = 0.0
 var _dash_direction: Vector2 = Vector2.ZERO
+var _afterimage_timer: float = 0.0
 var _knockback: Vector2 = Vector2.ZERO
+var _move_velocity: Vector2 = Vector2.ZERO
+var _shake_strength: float = 0.0
 var _shake_left: float = 0.0
 var _open_panels: int = 0
 var _dead: bool = false
@@ -42,21 +72,27 @@ var _prompt_text: String = ""
 @onready var attack_hitbox: Hitbox = $AttackHitbox
 @onready var interact_area: Area2D = $InteractArea
 @onready var camera: Camera2D = $Camera2D
+@onready var _camera_base: Vector2 = camera.position
 
 
 func _ready() -> void:
 	hurtbox.hurt.connect(_on_hurt)
 	hurtbox.invincible_time = hurt_invincibility
 	attack_hitbox.active = false
-	attack_hitbox.knockback = attack_knockback
 	slash.visible = false
+	slash.hframes = SLASH_FRAMES
 	EventBus.panel_visibility_changed.connect(func(count: int): _open_panels = count)
+	EventBus.camera_shake.connect(_on_camera_shake)
 	if Game.player.position.is_finite():
 		global_position = Game.player.position
 
 
 func is_dead() -> bool:
 	return _dead
+
+
+func is_attacking() -> bool:
+	return _attack_left > 0.0
 
 
 func set_camera_limits(bounds: Rect2i) -> void:
@@ -69,28 +105,32 @@ func set_camera_limits(bounds: Rect2i) -> void:
 func _physics_process(delta: float) -> void:
 	_attack_ready_in -= delta
 	_dash_ready_in -= delta
+	_combo_left -= delta
 	_update_attack(delta)
-	_update_shake(delta)
+	_update_camera(delta)
 	if _dead:
 		return
+	if _buffered_attack and _attack_ready_in <= 0.0:
+		_buffered_attack = false
+		_attack(_buffered_with_mouse)
 
 	var input := Vector2.ZERO
 	if _open_panels == 0:
 		input = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	if _dash_left > 0.0:
-		_dash_left -= delta
-		velocity = _dash_direction * dash_speed
-		if _dash_left <= 0.0:
-			sprite.modulate.a = 1.0
+		_update_dash(delta)
 	else:
-		var slow := 0.5 if _attack_left > 0.0 else 1.0
-		velocity = input * speed * slow + _knockback
+		var target := input * speed * (0.45 if _attack_left > 0.0 else 1.0)
+		var rate := acceleration if input != Vector2.ZERO else friction
+		_move_velocity = _move_velocity.move_toward(target, rate * delta)
+		velocity = _move_velocity + _knockback
 	_knockback = _knockback.move_toward(Vector2.ZERO, 900.0 * delta)
 	move_and_slide()
+	_move_velocity = _move_velocity.limit_length(get_real_velocity().length() + 1.0)
 
 	if input != Vector2.ZERO and _attack_left <= 0.0:
 		facing = _four_way(input)
-	_animate(delta, input != Vector2.ZERO)
+	_animate(delta, _move_velocity.length() > 10.0)
 	Game.player.position = global_position
 	_update_prompt()
 
@@ -99,7 +139,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _dead or _open_panels > 0:
 		return
 	if event.is_action_pressed("attack"):
-		_attack()
+		var with_mouse := event is InputEventMouseButton
+		if _attack_ready_in <= 0.0:
+			_attack(with_mouse)
+		elif _attack_ready_in <= input_buffer:
+			_buffered_attack = true
+			_buffered_with_mouse = with_mouse
 	elif event.is_action_pressed("dash"):
 		_dash()
 	elif event.is_action_pressed("interact"):
@@ -109,7 +154,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		_drink_potion()
 
 
-# --- Movement and animation ------------------------------------------------
+# --- Movement, animation and camera ----------------------------------------
 
 func _four_way(direction: Vector2) -> Vector2:
 	if absf(direction.x) > absf(direction.y):
@@ -122,36 +167,91 @@ func _animate(delta: float, moving: bool) -> void:
 	if moving:
 		_walk_time += delta
 		step = int(_walk_time / WALK_FRAME_TIME) % WALK_FRAMES
+		_dust_timer -= delta
+		if _dust_timer <= 0.0 and _move_velocity.length() > speed * 0.8:
+			_dust_timer = 0.3
+			Feel.burst(get_parent(), global_position, &"dust")
 	else:
 		_walk_time = 0.0
 	sprite.frame = ROWS.find(facing) * WALK_FRAMES + step
 
 
-# --- Attack and dash -------------------------------------------------------
+## Camera leans toward where you walk, and shakes when asked.
+func _update_camera(delta: float) -> void:
+	var lead := Vector2.ZERO
+	if _move_velocity.length() > 10.0:
+		lead = _move_velocity.normalized() * camera_lead
+	camera.position = camera.position.lerp(_camera_base + lead, clampf(3.0 * delta, 0.0, 1.0))
+	if _shake_left > 0.0:
+		_shake_left -= delta
+		var strength := _shake_strength * clampf(_shake_left / 0.2, 0.3, 1.0)
+		camera.offset = Vector2(randf_range(-strength, strength), randf_range(-strength, strength))
+	else:
+		camera.offset = Vector2.ZERO
 
-func _attack() -> void:
-	if _attack_ready_in > 0.0 or _dash_left > 0.0:
+
+func _on_camera_shake(strength: float, seconds: float) -> void:
+	if strength >= _shake_strength or _shake_left <= 0.0:
+		_shake_strength = strength
+	_shake_left = maxf(_shake_left, seconds)
+
+
+# --- Attack ----------------------------------------------------------------
+
+## Swing the sword. With the mouse it goes toward the cursor, otherwise
+## toward where you are walking (or facing).
+func _attack(with_mouse: bool = false) -> void:
+	if _dash_left > 0.0:
 		return
-	_attack_left = attack_time
-	_attack_ready_in = attack_cooldown
-	var offset := facing * attack_reach + Vector2(0, -14)
+	var hand := global_position + Vector2(0, -HAND_HEIGHT)
+	var aim := facing
+	if with_mouse:
+		aim = (get_global_mouse_position() - hand).normalized()
+	else:
+		var input := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+		if input != Vector2.ZERO:
+			aim = input.normalized()
+	if aim == Vector2.ZERO:
+		aim = facing
+	_attack_direction = aim
+	facing = _four_way(aim)
+
+	combo_step = combo_step + 1 if _combo_left > 0.0 and combo_step < 2 else 0
+	var finisher := combo_step == 2
+	_attack_left = attack_time * (1.3 if finisher else 1.0)
+	_attack_ready_in = attack_cooldown * (1.6 if finisher else 1.0)
+	_combo_left = combo_window + _attack_left
+
+	var offset := aim * attack_reach * (1.2 if finisher else 1.0) + Vector2(0, -HAND_HEIGHT)
 	attack_hitbox.position = offset
-	attack_hitbox.damage = Game.player.attack_damage()
+	attack_hitbox.damage = Game.player.attack_damage() + (1 if finisher else 0)
+	attack_hitbox.knockback = attack_knockback * (1.9 if finisher else 1.0)
+	attack_hitbox.unblockable = finisher
 	attack_hitbox.active = true
 	slash.position = offset
-	slash.rotation = facing.angle()
+	slash.rotation = aim.angle()
+	slash.flip_v = combo_step == 1  # alternate the swing direction
+	slash.scale = Vector2.ONE * (1.35 if finisher else 1.0)
+	slash.frame = 0
 	slash.visible = true
-	Sfx.play(&"swing", -10.0)
+	_move_velocity = aim * attack_step * (1.6 if finisher else 1.0)
+	sprite.scale = Vector2(1.12, 0.9)
+	create_tween().tween_property(sprite, "scale", Vector2.ONE, 0.12)
+	Sfx.play(&"swing", -8.0 if finisher else -10.0, 0.1)
 
 
 func _update_attack(delta: float) -> void:
 	if _attack_left <= 0.0:
 		return
 	_attack_left -= delta
+	var total := attack_time * (1.3 if combo_step == 2 else 1.0)
+	slash.frame = clampi(int((1.0 - _attack_left / total) * SLASH_FRAMES), 0, SLASH_FRAMES - 1)
 	if _attack_left <= 0.0:
 		attack_hitbox.active = false
 		slash.visible = false
 
+
+# --- Dash ------------------------------------------------------------------
 
 func _dash() -> void:
 	if _dash_ready_in > 0.0:
@@ -160,9 +260,36 @@ func _dash() -> void:
 	_dash_direction = input.normalized() if input != Vector2.ZERO else facing
 	_dash_left = dash_time
 	_dash_ready_in = dash_cooldown
+	_afterimage_timer = 0.0
 	hurtbox.make_invincible(dash_time + 0.05)
-	sprite.modulate.a = 0.6
+	Feel.burst(get_parent(), global_position, &"dust", Color.WHITE, -_dash_direction)
 	Sfx.play(&"dash", -12.0)
+
+
+func _update_dash(delta: float) -> void:
+	_dash_left -= delta
+	velocity = _dash_direction * dash_speed
+	_move_velocity = _dash_direction * speed
+	_afterimage_timer -= delta
+	if _afterimage_timer <= 0.0:
+		_afterimage_timer = 0.03
+		_spawn_afterimage()
+
+
+## A fading copy of the sprite left behind while dashing.
+func _spawn_afterimage() -> void:
+	var ghost := Sprite2D.new()
+	ghost.texture = sprite.texture
+	ghost.hframes = sprite.hframes
+	ghost.vframes = sprite.vframes
+	ghost.frame = sprite.frame
+	ghost.offset = sprite.offset
+	ghost.global_position = global_position
+	ghost.modulate = Color(0.55, 0.75, 1.0, 0.55)
+	get_parent().add_child(ghost)
+	var tween := ghost.create_tween()
+	tween.tween_property(ghost, "modulate:a", 0.0, 0.22)
+	tween.tween_callback(ghost.queue_free)
 
 
 # --- Getting hurt ----------------------------------------------------------
@@ -172,9 +299,11 @@ func _on_hurt(hitbox: Hitbox) -> void:
 		return
 	Game.player.hp -= hitbox.damage
 	_knockback = (global_position - hitbox.global_position).normalized() * hitbox.knockback
+	_move_velocity = Vector2.ZERO
 	FloatingText.spawn(get_parent(), global_position + Vector2(0, -52), "-%d" % hitbox.damage, Color(1, 0.4, 0.4))
 	Sfx.play(&"hurt")
-	_shake_left = 0.2
+	Feel.hit_stop(0.08)
+	Feel.shake(3.0, 0.25)
 	var tween := create_tween()
 	sprite.modulate = Color(1, 0.3, 0.3)
 	tween.tween_property(sprite, "modulate", Color.WHITE, 0.3)
@@ -182,20 +311,14 @@ func _on_hurt(hitbox: Hitbox) -> void:
 		_knock_out()
 
 
-func _update_shake(delta: float) -> void:
-	if _shake_left > 0.0:
-		_shake_left -= delta
-		camera.offset = Vector2(randf_range(-2, 2), randf_range(-2, 2))
-	else:
-		camera.offset = Vector2.ZERO
-
-
 ## HP reached 0: lose some gold, wake up at the inn next morning.
 func _knock_out() -> void:
 	_dead = true
 	velocity = Vector2.ZERO
 	_knockback = Vector2.ZERO
+	_move_velocity = Vector2.ZERO
 	attack_hitbox.active = false
+	slash.visible = false
 	EventBus.player_died.emit()
 	var tween := create_tween()
 	tween.tween_property(sprite, "modulate:a", 0.0, 0.8)
