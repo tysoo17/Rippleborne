@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Commodity" format=3]
+
+[ext_resource type="Script" path="res://game/economy/commodity.gd" id="1_commodity"]
+
+[resource]
+script = ExtResource("1_commodity")
+id = &"iron"
+display_name = "Iron"
+base_price = 10.0
+elasticity = 0.6
+smoothing = 0.15
+min_multiplier = 0.4
+max_multiplier = 4.0
+demand_sensitivity = 0.5

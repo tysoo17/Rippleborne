@@ -14,3 +14,8 @@ signal hour_advanced(day: int, hour: int)
 ## A new in-game day has started. Emitted by GameClock.
 @warning_ignore("unused_signal")
 signal day_advanced(day: int)
+
+## Monsters took over the mine (true) or the mine was cleared (false).
+## Emitted by WorldState.
+@warning_ignore("unused_signal")
+signal mine_state_changed(infested: bool)
