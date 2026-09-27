@@ -30,6 +30,8 @@ var player: PlayerState
 var seen_prices: Dictionary = {}
 ## Location the player is in right now ("Town", "Forest"...).
 var location: String = ""
+## Show the "How to play" window when the next game scene starts.
+var show_intro: bool = false
 
 
 func _ready() -> void:
@@ -68,6 +70,20 @@ func _on_enemy_killed(_enemy_id: StringName, group: StringName) -> void:
 			events.end_event(&"monster_infestation", world, true)
 		&"bandit_camp":
 			events.end_event(&"bandit_activity", world, true)
+
+
+## Use an item from the bag (only potions for now). Returns a message for the player.
+func use_item(id: StringName) -> String:
+	var item: ItemData = items[id]
+	if item.heal_amount <= 0:
+		return "%s can't be used." % item.display_name
+	if player.hp >= player.max_hp:
+		return "You are already at full health."
+	if not player.inventory.remove(id, 1):
+		return "You have no %s." % item.display_name
+	player.hp += item.heal_amount
+	Sfx.play(&"pickup")
+	return ""
 
 
 ## Remember what the player saw at a board or shop (information has a date).
