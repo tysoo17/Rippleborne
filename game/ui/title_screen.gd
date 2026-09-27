@@ -9,6 +9,7 @@ const MAIN_SCENE := "res://game/main.tscn"
 
 func _ready() -> void:
 	get_tree().paused = false
+	Sfx.play_music(&"town")
 	%NewGameButton.pressed.connect(_new_game)
 	continue_button.pressed.connect(_continue)
 	%QuitButton.pressed.connect(get_tree().quit)
