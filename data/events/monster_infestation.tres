@@ -6,8 +6,8 @@
 script = ExtResource("1_c1em3")
 id = &"monster_infestation"
 display_name = "Monster Infestation"
-base_chance = 0.12
-chance_growth_per_day = 0.06
+base_chance = 0.15
+chance_growth_per_day = 0.08
 cooldown_days = 12
 min_duration = 22
 max_duration = 32
