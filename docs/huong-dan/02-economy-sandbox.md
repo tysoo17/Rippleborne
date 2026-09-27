@@ -1,5 +1,9 @@
 # Bước 2: Sandbox kinh tế
 
+> **Ghi chú (v0.1):** mô hình trong bài này sau đó được mở rộng thành `EconomySystem` với 4 hàng hóa và 2 chợ
+> (xem [03-v0.1.md](03-v0.1.md)). Các file `economy_simulation.gd` và `sandbox_config.tres` nhắc tới bên dưới không còn nữa;
+> sandbox bây giờ hiển thị kinh tế thật của game. Công thức giá và ý tưởng vẫn giữ nguyên.
+
 Mục tiêu: thử **sớm** bài test quan trọng nhất trong Memory.md, trước khi tốn công vào combat:
 
 > Dọn mỏ → sản lượng sắt tăng → nguồn cung sắt tăng → giá sắt giảm dần.

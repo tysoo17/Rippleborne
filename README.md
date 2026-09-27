@@ -4,38 +4,54 @@ An indie economic game: pixel 2D 3/4 top-down, system-driven RPG. Single-player,
 
 > Don't give the player a goal. Give them a world.
 
-![Week 1 test room](docs/images/week1-test-room.png)
+![Mining Village](docs/images/v0.1-village.png)
+![Market Board](docs/images/v0.1-market-board.png)
 
 ## Chạy game
 
 1. Mở Godot **4.7.1**, bấm **Import**, chọn `project.godot` trong thư mục này.
-2. Bấm **F5** (Run Project).
+2. Bấm **F5**, chọn **New game**.
 
 | Phím | Tác dụng |
 |---|---|
 | WASD / mũi tên | Di chuyển |
-| F1 / F2 / F3 | (debug) Tua +1 giờ / +1 ngày / +30 ngày |
+| Space / J / chuột trái | Chém |
+| Shift / K | Dash |
+| E | Nói chuyện, mua bán, hái, đào |
+| I / Tab | Túi đồ |
+| Q | Uống thuốc |
+| Esc | Menu (lưu, tải, hướng dẫn) |
+| F12 | Debug panel |
 
-Sandbox kinh tế: mở `game/economy/sandbox/economy_sandbox.tscn`, bấm **F6**.
+Hướng dẫn chơi thử và giải thích hệ thống: [docs/huong-dan/03-v0.1.md](docs/huong-dan/03-v0.1.md).
 
-Test tự động: mở `tests/test_economy.tscn`, bấm **F6** và xem kết quả ở tab Output. Hoặc chạy
-trong terminal: `godot --headless --path . tests/test_economy.tscn`.
+## Test tự động
+
+Mở một trong các scene dưới đây rồi bấm **F6**, kết quả hiện ở tab Output:
+
+- `tests/test_simulation.tscn`: kinh tế, sự kiện, save (chạy 10.000 ngày)
+- `tests/test_gameplay.tscn`: chơi thật trong scene chính (đánh, nhặt đồ, mua bán, dọn mỏ, save)
+
+Không cần mở cửa sổ game: `godot --headless --path . tests/test_simulation.tscn`
+
+Sandbox kinh tế (xem giá mà không cần chơi): `game/economy/sandbox/economy_sandbox.tscn`, bấm F6.
 
 ## Cấu trúc thư mục
 
 ```text
 game/
-  infrastructure/   EventBus, GameClock (autoload), sau này SaveManager
-  player/           Player scene + script
-  world/            TileSet, các map/room
-  combat/           (tuần 2)
-  economy/          (sandbox kinh tế, tuần 5)
-  ui/               HUD, DebugOverlay, sau này Market Board
-  main.tscn         Scene chạy đầu tiên
+  infrastructure/   EventBus, GameClock, Game (trạng thái), SaveManager, Sfx
+  economy/          Commodity, Market, Settlement, EconomySystem, sandbox
+  world/            WorldState, EventSystem, bản đồ, NPC, điểm hái lượm, ngày/đêm
+  combat/           Hitbox, Hurtbox, Enemy, EnemySpawner
+  items/            ItemData, Inventory, ItemPickup
+  player/           Player, PlayerState
+  ui/               HUD, các cửa sổ, màn hình tiêu đề
+  main.tscn         Scene chơi chính
 assets/             Ảnh, âm thanh (placeholder)
-data/               Dữ liệu cân bằng: items, commodities, events, businesses
-tests/              Test tự động (headless simulation)
-tools/              Công cụ dev
+data/               Số liệu cân bằng (.tres): commodities, businesses, settlements, enemies, events, items
+tests/              Test tự động
+tools/              generate_world.gd (dựng lại bản đồ từ đầu)
 docs/huong-dan/     Giải thích từng bước đã làm
 NOT_NOW.md          Ý tưởng để dành, chưa làm trong v0.1
 ```
@@ -50,5 +66,6 @@ NOT_NOW.md          Ý tưởng để dành, chưa làm trong v0.1
 ## Tiến độ
 
 - [x] Tuần 1: Foundation ([giải thích](docs/huong-dan/01-foundation.md))
-- [x] Sandbox kinh tế: sắt, 2 chợ, quái chiếm/dọn mỏ ([giải thích](docs/huong-dan/02-economy-sandbox.md))
-- [ ] Tuần 2: Combat
+- [x] Sandbox kinh tế ([giải thích](docs/huong-dan/02-economy-sandbox.md))
+- [x] v0.1: thế giới, combat, vật phẩm, kinh tế 4 hàng hóa, sự kiện, Market Board, save ([giải thích](docs/huong-dan/03-v0.1.md))
+- [ ] Chơi thử v0.1 và quyết định theo Decision Gate (PDF mục 16)
