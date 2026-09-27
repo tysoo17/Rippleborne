@@ -1,24 +1,69 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://game/player/player.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://assets/sprites/player_placeholder.png" id="2_texture"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player_sheet.png" id="2_sheet"]
+[ext_resource type="Texture2D" path="res://assets/sprites/slash.png" id="3_slash"]
+[ext_resource type="Script" path="res://game/combat/hurtbox.gd" id="4_hurtbox"]
+[ext_resource type="Script" path="res://game/combat/hitbox.gd" id="5_hitbox"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_feet"]
-size = Vector2(20, 10)
+size = Vector2(16, 8)
 
-[node name="Player" type="CharacterBody2D"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(14, 30)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_attack"]
+radius = 15.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_reach"]
+radius = 24.0
+
+[node name="Player" type="CharacterBody2D" groups=["player"]]
 collision_layer = 2
 collision_mask = 1
 motion_mode = 1
 script = ExtResource("1_script")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-texture = ExtResource("2_texture")
+texture = ExtResource("2_sheet")
 offset = Vector2(0, -24)
+hframes = 4
+vframes = 4
+
+[node name="Slash" type="Sprite2D" parent="."]
+visible = false
+z_index = 1
+texture = ExtResource("3_slash")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -5)
+position = Vector2(0, -4)
 shape = SubResource("RectangleShape2D_feet")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 32
+collision_mask = 16
+script = ExtResource("4_hurtbox")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2(0, -16)
+shape = SubResource("RectangleShape2D_body")
+
+[node name="AttackHitbox" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 0
+script = ExtResource("5_hitbox")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackHitbox"]
+shape = SubResource("CircleShape2D_attack")
+
+[node name="InteractArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 128
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractArea"]
+position = Vector2(0, -10)
+shape = SubResource("CircleShape2D_reach")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(0, -16)
