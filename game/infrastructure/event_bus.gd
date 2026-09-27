@@ -34,6 +34,8 @@ signal weapon_upgraded(level: int)
 signal player_died
 ## The player walked into another area (Town, Forest...).
 signal location_changed(location_name: String)
+## Text for the "E: ..." hint; empty when nothing is in reach.
+signal interact_prompt_changed(text: String)
 
 # --- UI ------------------------------------------------------------------
 ## Ask the UI to open a panel, e.g. open_panel.emit(&"shop", {"settlement": &"town"}).

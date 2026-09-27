@@ -1,0 +1,31 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://game/combat/enemy.gd" id="1_script"]
+[ext_resource type="Script" path="res://game/combat/hurtbox.gd" id="2_hurtbox"]
+[ext_resource type="Script" path="res://game/combat/hitbox.gd" id="3_hitbox"]
+
+[node name="Enemy" type="CharacterBody2D" groups=["enemies"]]
+collision_layer = 4
+collision_mask = 5
+motion_mode = 1
+script = ExtResource("1_script")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 64
+collision_mask = 8
+script = ExtResource("2_hurtbox")
+invincible_time = 0.25
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+
+[node name="Hitbox" type="Area2D" parent="."]
+collision_layer = 16
+collision_mask = 0
+script = ExtResource("3_hitbox")
+knockback = 180.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]

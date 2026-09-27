@@ -1,3 +1,4 @@
+class_name PriceChart
 extends Control
 ## Line chart of price history (economy sandbox and Market Board).
 ## Optional red bands mark days when the mine was infested.
