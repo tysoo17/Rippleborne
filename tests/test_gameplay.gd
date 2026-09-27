@@ -47,6 +47,8 @@ func run() -> void:
 	var forest := get_tree().get_nodes_in_group("enemies").filter(func(e): return e.group == &"forest")
 	check(forest.size() >= 10, "forest spawners filled (%d enemies)" % forest.size())
 
+	await test_movement_feel()
+	await test_combo_and_special_moves()
 	await test_fight_and_loot(forest)
 	await test_gathering()
 	await test_selling()
@@ -70,6 +72,109 @@ func kill(enemy) -> bool:
 		Input.parse_input_event(press)
 		await frames(22)
 	return not is_instance_valid(enemy) or enemy.is_dying()
+
+
+## Wait until the sword is ready again (hit-stop slows the game for a moment).
+func ready_to_attack() -> void:
+	for i in 120:
+		if player._attack_ready_in <= 0.05:
+			return
+		await frames(1)
+
+
+func press_attack() -> void:
+	var press := InputEventAction.new()
+	press.action = &"attack"
+	press.pressed = true
+	Input.parse_input_event(press)
+
+
+func spawn_enemy(id: StringName, at: Vector2, tweak: Callable = Callable()) -> Enemy:
+	var data: EnemyData = Game.enemies[id].duplicate()
+	if tweak.is_valid():
+		tweak.call(data)
+	var enemy: Enemy = load("res://game/combat/enemy.tscn").instantiate()
+	enemy.setup(data, &"test", at)
+	enemy.position = at
+	main.get_node("World/Entities").add_child(enemy)
+	return enemy
+
+
+func test_movement_feel() -> void:
+	player.global_position = Vector2(19 * 32, 30 * 32)
+	await frames(10)
+	Input.action_press("move_right")
+	await frames(2)
+	var early := player.velocity.x
+	await frames(20)
+	var later := player.velocity.x
+	Input.action_release("move_right")
+	await frames(3)
+	var stopping := player.velocity.x
+	await frames(20)
+	check(early > 0.0 and early < player.speed * 0.6 and later > player.speed * 0.95,
+			"movement speeds up smoothly (%.0f after 2 frames, %.0f later)" % [early, later])
+	check(stopping > 0.0 and absf(player.velocity.x) < 1.0, "and slows down smoothly when you let go")
+
+
+func test_combo_and_special_moves() -> void:
+	player.global_position = Vector2(19 * 32, 30 * 32)
+	player.facing = Vector2.RIGHT
+	var steps: Array[int] = []
+	for i in 3:
+		press_attack()
+		await frames(2)
+		steps.append(player.combo_step)
+		await frames(14)
+	check(steps == [0, 1, 2], "three quick swings make a combo %s" % str(steps))
+	check(player.attack_hitbox.unblockable == false or player.combo_step == 2, "the third swing is the finisher")
+	await frames(40)
+
+	# A bandit that always blocks: normal hits bounce off, the finisher gets through.
+	var bandit := spawn_enemy(&"bandit", player.global_position + Vector2(20, 0),
+			func(d: EnemyData): d.block_chance = 1.0; d.detect_range = 0.0)
+	await frames(3)
+	player.global_position = bandit.global_position - Vector2(18, 0)
+	player.facing = Vector2.RIGHT
+	press_attack()
+	await frames(5)
+	check(bandit.hp == bandit.data.max_hp, "a bandit can block a normal hit")
+	var before := bandit.hp
+	for swing in 2:
+		await ready_to_attack()
+		player.global_position = bandit.global_position - Vector2(18, 0)
+		press_attack()
+		await frames(3)
+	check(player.combo_step == 2 and bandit.hp <= before - 2,
+			"the combo finisher hits hard through a block (hp %d -> %d)" % [before, bandit.hp])
+	bandit.queue_free()
+	await frames(40)
+
+	# A wolf lunges twice in one attack.
+	var wolf := spawn_enemy(&"wolf", player.global_position + Vector2(30, 0))
+	var lunges := 0
+	var was_lunging := false
+	for i in 120:
+		await frames(1)
+		var lunging := wolf.state == Enemy.State.LUNGE
+		if lunging and not was_lunging:
+			lunges += 1
+		was_lunging = lunging
+		if wolf.state == Enemy.State.RECOVER:
+			break
+	check(lunges == 2, "a wolf lunges twice per attack (%d)" % lunges)
+	wolf.queue_free()
+
+	# A slime splits into two small slimes.
+	var slime := spawn_enemy(&"slime", player.global_position + Vector2(40, 0))
+	await frames(3)
+	await kill(slime)
+	await frames(4)
+	var small := get_tree().get_nodes_in_group("enemies").filter(func(e): return e.data.id == &"mini_slime")
+	check(small.size() == 2, "a slime splits into 2 small slimes (%d)" % small.size())
+	for s in small:
+		await kill(s)
+	await frames(30)
 
 
 func test_fight_and_loot(forest: Array) -> void:

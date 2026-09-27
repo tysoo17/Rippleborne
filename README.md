@@ -15,12 +15,12 @@ An indie economic game: pixel 2D 3/4 top-down, system-driven RPG. Single-player,
 | Phím | Tác dụng |
 |---|---|
 | WASD / mũi tên | Di chuyển |
-| Space / J / chuột trái | Chém |
+| Space / J / chuột trái | Chém (3 lần liên tiếp = combo, chuột nhắm theo con trỏ) |
 | Shift / K | Dash |
 | E | Nói chuyện, mua bán, hái, đào |
 | I / Tab | Túi đồ |
 | Q | Uống thuốc |
-| Esc | Menu (lưu, tải, hướng dẫn) |
+| Esc | Menu (lưu, tải, hướng dẫn, bật/tắt nhạc) |
 | F12 | Debug panel |
 
 Hướng dẫn chơi thử và giải thích hệ thống: [docs/huong-dan/03-v0.1.md](docs/huong-dan/03-v0.1.md).
@@ -30,7 +30,7 @@ Hướng dẫn chơi thử và giải thích hệ thống: [docs/huong-dan/03-v0
 Mở một trong các scene dưới đây rồi bấm **F6**, kết quả hiện ở tab Output:
 
 - `tests/test_simulation.tscn`: kinh tế, sự kiện, save (chạy 10.000 ngày)
-- `tests/test_gameplay.tscn`: chơi thật trong scene chính (đánh, nhặt đồ, mua bán, dọn mỏ, save)
+- `tests/test_gameplay.tscn`: chơi thật trong scene chính (di chuyển, combo, quái, nhặt đồ, mua bán, dọn mỏ, save)
 
 Không cần mở cửa sổ game: `godot --headless --path . tests/test_simulation.tscn`
 
@@ -40,7 +40,7 @@ Sandbox kinh tế (xem giá mà không cần chơi): `game/economy/sandbox/econo
 
 ```text
 game/
-  infrastructure/   EventBus, GameClock, Game (trạng thái), SaveManager, Sfx
+  infrastructure/   EventBus, GameClock, Game (trạng thái), SaveManager, Sfx, Feel
   economy/          Commodity, Market, Settlement, EconomySystem, sandbox
   world/            WorldState, EventSystem, bản đồ, NPC, điểm hái lượm, ngày/đêm
   combat/           Hitbox, Hurtbox, Enemy, EnemySpawner
@@ -68,4 +68,6 @@ NOT_NOW.md          Ý tưởng để dành, chưa làm trong v0.1
 - [x] Tuần 1: Foundation ([giải thích](docs/huong-dan/01-foundation.md))
 - [x] Sandbox kinh tế ([giải thích](docs/huong-dan/02-economy-sandbox.md))
 - [x] v0.1: thế giới, combat, vật phẩm, kinh tế 4 hàng hóa, sự kiện, Market Board, save ([giải thích](docs/huong-dan/03-v0.1.md))
-- [ ] Chơi thử v0.1 và quyết định theo Decision Gate (PDF mục 16)
+- [x] Gói A: cảm giác điều khiển, combo, hiệu ứng, nhạc ([giải thích](docs/huong-dan/04-cam-giac-dieu-khien.md))
+- [ ] Gói B: thị trường sống động hơn
+- [ ] Chơi thử và quyết định theo Decision Gate (PDF mục 16)
