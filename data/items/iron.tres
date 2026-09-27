@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/icons/iron.png" id="1_g53nd"]
+[ext_resource type="Script" path="res://game/items/item_data.gd" id="2_7juif"]
+
+[resource]
+script = ExtResource("2_7juif")
+id = &"iron"
+display_name = "Iron"
+description = "Raw iron from the mine. The blacksmith turns it into tools and weapons."
+icon = ExtResource("1_g53nd")
+base_value = 10
+commodity_id = &"iron"

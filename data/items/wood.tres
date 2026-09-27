@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/icons/wood.png" id="1_qnvr4"]
+[ext_resource type="Script" path="res://game/items/item_data.gd" id="2_6crmk"]
+
+[resource]
+script = ExtResource("2_6crmk")
+id = &"wood"
+display_name = "Wood"
+description = "Logs from the forest. Houses, fires and the mine all use it."
+icon = ExtResource("1_qnvr4")
+base_value = 5
+commodity_id = &"wood"

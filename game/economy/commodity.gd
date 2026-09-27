@@ -1,11 +1,12 @@
 class_name Commodity
 extends Resource
-## Static data for one tradable good (iron, food...).
+## Static data for one tradable good (food, wood, iron, herbs).
 ## The numbers live in data/commodities/*.tres so they can be tuned in the
 ## Inspector without touching code.
 
 @export var id: StringName = &""
 @export var display_name: String = ""
+@export var icon: Texture2D
 
 @export_group("Price")
 ## Price when a market holds exactly the stock it wants.
@@ -20,5 +21,11 @@ extends Resource
 
 @export_group("Demand")
 ## How much people cut back when it is expensive (and buy more when cheap).
-## 0 = they always buy the same amount.
+## 0 = they always buy the same amount. Food is a necessity, so it is low.
 @export_range(0.0, 2.0) var demand_sensitivity: float = 0.5
+
+@export_group("Trade")
+## Cost for a caravan to haul one unit between the two settlements.
+@export var transport_cost_per_unit: float = 1.0
+## Most units caravans move per day in one direction on a safe road.
+@export var trade_cap_per_day: float = 20.0

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Commodity" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/icons/food.png" id="1_wwnlh"]
+[ext_resource type="Script" path="res://game/economy/commodity.gd" id="2_c41d5"]
+
+[resource]
+script = ExtResource("2_c41d5")
+id = &"food"
+display_name = "Food"
+icon = ExtResource("1_wwnlh")
+base_price = 4.0
+demand_sensitivity = 0.25
+transport_cost_per_unit = 0.6
+trade_cap_per_day = 30.0

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="BusinessData" format=3]
+
+[ext_resource type="Script" path="res://game/economy/business_data.gd" id="1_vl2uf"]
+
+[resource]
+script = ExtResource("1_vl2uf")
+id = &"woodcutters"
+display_name = "Woodcutters"
+settlement_id = &"town"
+output_commodity = &"wood"
+output_per_day = 12.5

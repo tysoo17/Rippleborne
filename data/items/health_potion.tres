@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/icons/health_potion.png" id="1_dvv3t"]
+[ext_resource type="Script" path="res://game/items/item_data.gd" id="2_q6ixs"]
+
+[resource]
+script = ExtResource("2_q6ixs")
+id = &"health_potion"
+display_name = "Health Potion"
+description = "Restores 5 HP. Press Q to drink one."
+icon = ExtResource("1_dvv3t")
+max_stack = 10
+base_value = 6
+heal_amount = 5

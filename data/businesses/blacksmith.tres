@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="BusinessData" format=3]
+
+[ext_resource type="Script" path="res://game/economy/business_data.gd" id="1_pk36j"]
+
+[resource]
+script = ExtResource("1_pk36j")
+id = &"blacksmith"
+display_name = "Blacksmith"
+settlement_id = &"town"
+input_commodities = Array[StringName]([&"iron", &"wood"])
+input_per_day = Array[float]([14.0, 2.0])

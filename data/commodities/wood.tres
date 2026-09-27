@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="Commodity" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/icons/wood.png" id="1_hw7fn"]
+[ext_resource type="Script" path="res://game/economy/commodity.gd" id="2_5mj33"]
+
+[resource]
+script = ExtResource("2_5mj33")
+id = &"wood"
+display_name = "Wood"
+icon = ExtResource("1_hw7fn")
+base_price = 5.0
+transport_cost_per_unit = 0.8

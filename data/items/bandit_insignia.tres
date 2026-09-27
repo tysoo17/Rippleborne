@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/icons/bandit_insignia.png" id="1_hj6kw"]
+[ext_resource type="Script" path="res://game/items/item_data.gd" id="2_riis6"]
+
+[resource]
+script = ExtResource("2_riis6")
+id = &"bandit_insignia"
+display_name = "Bandit Insignia"
+description = "Proof that a bandit was defeated. The town pays a bounty."
+icon = ExtResource("1_hj6kw")
+base_value = 12
