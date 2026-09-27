@@ -37,6 +37,10 @@ signal location_changed(location_name: String)
 ## Text for the "E: ..." hint; empty when nothing is in reach.
 signal interact_prompt_changed(text: String)
 
+# --- Feel ----------------------------------------------------------------
+## Shake the camera: strength in pixels, for a number of seconds.
+signal camera_shake(strength: float, seconds: float)
+
 # --- UI ------------------------------------------------------------------
 ## Ask the UI to open a panel, e.g. open_panel.emit(&"shop", {"settlement": &"town"}).
 signal open_panel(panel: StringName, context: Dictionary)

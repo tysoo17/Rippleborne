@@ -21,6 +21,7 @@ EventBus="*res://game/infrastructure/event_bus.gd"
 GameClock="*res://game/infrastructure/game_clock.gd"
 Game="*res://game/infrastructure/game_state.gd"
 Sfx="*res://game/infrastructure/sfx.gd"
+Feel="*res://game/infrastructure/feel.gd"
 
 [display]
 
