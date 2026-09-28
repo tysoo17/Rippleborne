@@ -13,6 +13,10 @@ signal used(player: Player)
 @export var panel: StringName = &""
 @export var settlement_id: StringName = &""
 @export var enabled: bool = true
+## For people: who they are, passed on to the dialogue window.
+@export var npc_name: String = ""
+@export var role: StringName = &""
+@export var portrait: Texture2D
 
 
 func _ready() -> void:
@@ -28,5 +32,6 @@ func get_prompt() -> String:
 
 func interact(player: Player) -> void:
 	if panel != &"":
-		EventBus.open_panel.emit(panel, {"settlement": settlement_id})
+		EventBus.open_panel.emit(panel, {"settlement": settlement_id, "name": npc_name,
+				"role": role, "portrait": portrait})
 	used.emit(player)

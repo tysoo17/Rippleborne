@@ -31,6 +31,7 @@ var world: WorldState
 var economy: EconomySystem
 var events: EventSystem
 var player: PlayerState
+var jobs: JobSystem
 ## Prices the player last saw at each settlement: id -> {"day": int, "prices": {id: float}}
 var seen_prices: Dictionary = {}
 ## Location the player is in right now ("Town", "Forest"...).
@@ -43,6 +44,9 @@ func _ready() -> void:
 	_load_static_data()
 	EventBus.day_advanced.connect(_on_day_advanced)
 	EventBus.enemy_killed.connect(_on_enemy_killed)
+	EventBus.world_event_ended.connect(_on_world_event_ended)
+	EventBus.mine_state_changed.connect(func(_on: bool): jobs.refresh(economy, events))
+	EventBus.bandit_state_changed.connect(func(_on: bool): jobs.refresh(economy, events))
 	EventBus.location_changed.connect(func(location_name: String): location = location_name)
 	# A valid state exists even when a single scene is run with F6.
 	new_game()
@@ -56,16 +60,19 @@ func new_game(seed_value: int = 0) -> void:
 	economy.rng.seed = seed_to_use + 1
 	events = EventSystem.new(event_data, seed_to_use, minor_event_data)
 	player = PlayerState.new(items)
+	jobs = JobSystem.new()
 	seen_prices = {}
 	for i in WARM_UP_DAYS:
 		economy.daily_tick(world)
 	economy.day = 0
+	jobs.daily_tick(economy, events)
 
 
 ## One simulated day: events first (they change the world), then the economy.
 func _on_day_advanced(day: int) -> void:
 	events.daily_tick(world, day)
 	economy.daily_tick(world)
+	jobs.daily_tick(economy, events)
 	EventBus.economy_updated.emit(day)
 	for line in morning_report():
 		EventBus.news.emit(line, "info")
@@ -99,6 +106,13 @@ func _on_enemy_killed(_enemy_id: StringName, group: StringName) -> void:
 			events.end_event(&"bandit_activity", world, true)
 
 
+func _on_world_event_ended(event_id: StringName, by_player: bool) -> void:
+	var reward := jobs.close_bounty(event_id, by_player, economy, player)
+	if reward > 0:
+		EventBus.news.emit("Bounty paid: +%d gold. People will remember this." % reward, "good")
+	jobs.refresh(economy, events)
+
+
 ## Use an item from the bag (only potions for now). Returns a message for the player.
 func use_item(id: StringName) -> String:
 	var item: ItemData = items[id]
@@ -129,6 +143,7 @@ func to_dict() -> Dictionary:
 	return {
 		"clock": GameClock.to_dict(), "world": world.to_dict(), "economy": economy.to_dict(),
 		"events": events.to_dict(), "player": player.to_dict(), "seen_prices": seen_prices,
+		"jobs": jobs.to_dict(),
 	}
 
 
@@ -140,6 +155,7 @@ func from_dict(data: Dictionary) -> void:
 	events.from_dict(data.get("events", {}))
 	player.from_dict(data.get("player", {}))
 	seen_prices = data.get("seen_prices", {})
+	jobs.from_dict(data.get("jobs", {}), economy)
 
 
 func _load_static_data() -> void:

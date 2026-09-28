@@ -99,6 +99,7 @@ func end_event(id: StringName, world: WorldState, by_player: bool) -> void:
 	cooldown_left[id] = e.cooldown_days
 	_apply(id, world, false)
 	EventBus.news.emit(e.end_news_player if by_player else e.end_news_natural, "good")
+	EventBus.world_event_ended.emit(id, by_player)
 
 
 func _apply(id: StringName, world: WorldState, active: bool) -> void:

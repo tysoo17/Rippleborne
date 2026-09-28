@@ -23,6 +23,8 @@ signal mine_state_changed(infested: bool)
 signal bandit_state_changed(active: bool)
 ## A message for the player. kind: "info", "warning" or "good".
 signal news(text: String, kind: String)
+## A big event ended; by_player = the player ended it (bounties pay out).
+signal world_event_ended(event_id: StringName, by_player: bool)
 ## An enemy died. group is the spawner group, e.g. "mine" or "forest".
 signal enemy_killed(enemy_id: StringName, group: StringName)
 

@@ -19,11 +19,14 @@ func build() -> void:
 
 
 func refresh() -> void:
+	var gossip := "Greta the innkeeper wipes a mug: \"%s\"
+
+" % Dialogue.news(&"innkeeper")
 	if Game.player.money >= PRICE:
-		_info.text = "A warm bed until morning costs %d gold. You wake up with full health, and the game is saved." % PRICE
+		_info.text = gossip + "A warm bed until morning costs %d gold. You wake up with full health, and the game is saved." % PRICE
 		_sleep_button.text = "Sleep (%d gold)" % PRICE
 	else:
-		_info.text = "No money? You can sleep in the stable for free. You will only recover half your health."
+		_info.text = gossip + "No money? You can sleep in the stable for free. You will only recover half your health."
 		_sleep_button.text = "Sleep in the stable"
 
 

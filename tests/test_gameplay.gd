@@ -51,6 +51,7 @@ func run() -> void:
 	await test_combo_and_special_moves()
 	await test_fight_and_loot(forest)
 	await test_gathering()
+	await test_talking()
 	await test_selling()
 	await test_blacksmith()
 	await test_clear_the_mine()
@@ -204,6 +205,30 @@ func test_gathering() -> void:
 	check(Game.player.inventory.count_of(&"herbs") == before + 2, "an empty bush gives nothing until it regrows")
 	var ore: GatherNode = main.find_child("Ore1", true, false)
 	check(ore.is_ready(), "ore can be dug while the mine is safe")
+
+
+func test_talking() -> void:
+	var farmer := main.find_child("Farmer", true, false)
+	farmer.get_node("Interactable").interact(player)
+	await frames(2)
+	var panel := main.get_node("UI/Center/DialoguePanel")
+	check(panel.visible and panel._name.text == "Hob", "talking to the farmer opens a conversation with Hob")
+	check(panel._text.text.length() > 10, "he says something: %s" % panel._text.text)
+	panel.close()
+	await frames(2)
+	main.find_child("TownJobBoard", true, false).get_node("Interactable").interact(player)
+	await frames(2)
+	var board := main.get_node("UI/Center/JobsPanel")
+	check(board.visible, "the job board opens")
+	board.close()
+	await frames(2)
+	var hours := (22 - GameClock.hour + 24) % 24
+	GameClock.advance_time(hours)
+	await frames(2)
+	check(not farmer.visible, "people go home at night")
+	GameClock.advance_to_next_morning()
+	await frames(2)
+	check(farmer.visible, "and come back in the morning")
 
 
 func test_selling() -> void:

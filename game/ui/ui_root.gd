@@ -13,6 +13,8 @@ var _current: GamePanel = null
 	&"pause": $Center/PauseMenu,
 	&"help": $Center/HelpPanel,
 	&"debug": $Center/DebugPanel,
+	&"dialogue": $Center/DialoguePanel,
+	&"jobs": $Center/JobsPanel,
 }
 
 

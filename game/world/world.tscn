@@ -19,6 +19,9 @@
 [ext_resource type="PackedScene" path="res://game/player/player.tscn" id="17_ujd3c"]
 [ext_resource type="Script" path="res://game/player/player.gd" id="18_qmrmb"]
 [ext_resource type="Script" path="res://game/world/location_area.gd" id="19_q2j3q"]
+[ext_resource type="Texture2D" path="res://assets/sprites/notice_board.png" id="30_notice"]
+[ext_resource type="Texture2D" path="res://assets/sprites/npc_guard.png" id="31_guard"]
+[ext_resource type="Texture2D" path="res://assets/sprites/npc_townsperson.png" id="32_towns"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_of7ht"]
 size = Vector2(1024, 1248)
@@ -61,6 +64,8 @@ body_size = Vector2(14, 8)
 prompt = "Rest at the inn"
 panel = &"inn"
 settlement_id = &"town"
+npc_name = "Greta"
+role = &"innkeeper"
 
 [node name="Blacksmith" type="Node2D" parent="Entities" unique_id=1226735176 instance=ExtResource("3_3rfcy")]
 position = Vector2(944, 606)
@@ -70,12 +75,17 @@ body_size = Vector2(14, 8)
 prompt = "Talk to the blacksmith"
 panel = &"blacksmith"
 settlement_id = &"town"
+npc_name = "Bram"
+role = &"blacksmith"
 
 [node name="TownMerchant" type="Node2D" parent="Entities" unique_id=959647696 instance=ExtResource("3_3rfcy")]
 position = Vector2(624, 830)
 script = ExtResource("4_par4i")
 texture = ExtResource("7_4tk24")
 body_size = Vector2(14, 8)
+settlement_id = &"town"
+npc_name = "Mira"
+role = &"merchant"
 
 [node name="TownStall" type="Node2D" parent="Entities" unique_id=1621082161 instance=ExtResource("3_3rfcy")]
 position = Vector2(624, 862)
@@ -100,6 +110,11 @@ position = Vector2(336, 1150)
 script = ExtResource("4_par4i")
 texture = ExtResource("10_4owp7")
 body_size = Vector2(14, 8)
+settlement_id = &"town"
+npc_name = "Hob"
+role = &"farmer"
+wander_radius = 36.0
+sleeps_at_night = true
 
 [node name="BanditCamp" type="Node2D" parent="Entities" unique_id=1790853933]
 y_sort_enabled = true
@@ -116,6 +131,9 @@ position = Vector2(2928, 894)
 script = ExtResource("4_par4i")
 texture = ExtResource("7_4tk24")
 body_size = Vector2(14, 8)
+settlement_id = &"village"
+npc_name = "Oskar"
+role = &"merchant"
 
 [node name="VillageStall" type="Node2D" parent="Entities" unique_id=820484138 instance=ExtResource("3_3rfcy")]
 position = Vector2(2928, 926)
@@ -140,12 +158,22 @@ position = Vector2(2832, 1054)
 script = ExtResource("4_par4i")
 texture = ExtResource("10_4owp7")
 body_size = Vector2(14, 8)
+settlement_id = &"village"
+npc_name = "Dunn"
+role = &"miner"
+wander_radius = 30.0
+sleeps_at_night = true
 
 [node name="Villager" type="Node2D" parent="Entities" unique_id=1016279644 instance=ExtResource("3_3rfcy")]
 position = Vector2(3120, 798)
 script = ExtResource("4_par4i")
 texture = ExtResource("10_4owp7")
 body_size = Vector2(14, 8)
+settlement_id = &"village"
+npc_name = "Elsa"
+role = &"villager"
+wander_radius = 40.0
+sleeps_at_night = true
 
 [node name="Ore1" type="Node2D" parent="Entities" unique_id=608081013 instance=ExtResource("12_gf1gx")]
 position = Vector2(2704, 350)
@@ -305,6 +333,40 @@ script = ExtResource("18_qmrmb")
 
 [node name="RespawnPoint" type="Marker2D" parent="Entities" unique_id=446496716 groups=["respawn_point"]]
 position = Vector2(272, 616)
+
+[node name="TownJobBoard" parent="Entities" instance=ExtResource("3_3rfcy")]
+position = Vector2(496, 894)
+texture = ExtResource("30_notice")
+body_size = Vector2(26, 6)
+prompt = "Read the job board"
+panel = &"jobs"
+settlement_id = &"town"
+
+[node name="VillageJobBoard" parent="Entities" instance=ExtResource("3_3rfcy")]
+position = Vector2(2832, 958)
+texture = ExtResource("30_notice")
+body_size = Vector2(26, 6)
+prompt = "Read the job board"
+panel = &"jobs"
+settlement_id = &"village"
+
+[node name="Guard" parent="Entities" instance=ExtResource("3_3rfcy")]
+position = Vector2(1008, 894)
+texture = ExtResource("31_guard")
+body_size = Vector2(14, 8)
+settlement_id = &"town"
+npc_name = "Sergeant Pike"
+role = &"guard"
+
+[node name="Townsperson" parent="Entities" instance=ExtResource("3_3rfcy")]
+position = Vector2(496, 1022)
+texture = ExtResource("32_towns")
+body_size = Vector2(14, 8)
+settlement_id = &"town"
+npc_name = "Old Tilda"
+role = &"townsperson"
+wander_radius = 40.0
+sleeps_at_night = true
 
 [node name="Locations" type="Node2D" parent="." unique_id=1729693004]
 

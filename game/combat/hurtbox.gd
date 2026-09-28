@@ -17,6 +17,8 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if not monitoring:
+		return
 	if _invincible_left > 0.0:
 		_invincible_left -= delta
 		return
