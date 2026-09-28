@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MinorEventData" format=3]
+
+[ext_resource type="Script" path="res://game/world/minor_event_data.gd" id="1_minor"]
+
+[resource]
+script = ExtResource("1_minor")
+id = &"wolves_at_farm"
+display_name = "Wolves at the Farm"
+business_id = &"farm"
+factor = 0.6
+min_days = 3
+max_days = 4
+weight = 1.0
+news = "Wolves keep scaring the farmers. Less food is being harvested."
+reason = "Wolves at the farm"

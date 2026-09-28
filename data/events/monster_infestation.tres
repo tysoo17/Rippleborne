@@ -11,6 +11,7 @@ chance_growth_per_day = 0.08
 cooldown_days = 12
 min_duration = 22
 max_duration = 32
+rumor = "Miners say they hear scratching deep in the mine at night. Something is down there..."
 start_news = "Monsters have overrun the mine! The miners fled and no iron is coming out."
 end_news_natural = "The village militia finally drove the monsters out of the mine."
 end_news_player = "You cleared the mine! The miners are going back to work."

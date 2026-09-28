@@ -7,6 +7,8 @@
 script = ExtResource("2_5mj33")
 id = &"wood"
 display_name = "Wood"
+elasticity = 0.7
+smoothing = 0.2
 icon = ExtResource("1_hw7fn")
 base_price = 5.0
 transport_cost_per_unit = 0.8

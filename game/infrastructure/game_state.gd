@@ -9,11 +9,15 @@ const COMMODITY_IDS: Array[StringName] = [&"food", &"wood", &"iron", &"herbs"]
 const SETTLEMENT_IDS: Array[StringName] = [&"town", &"village"]
 const BUSINESS_IDS: Array[StringName] = [&"farm", &"woodcutters", &"herbalists", &"mine", &"blacksmith"]
 const EVENT_IDS: Array[StringName] = [&"monster_infestation", &"bandit_activity"]
+const MINOR_EVENT_IDS: Array[StringName] = [&"harvest_festival", &"big_order", &"rich_vein",
+		&"wolves_at_farm", &"herb_bloom", &"cold_snap", &"storm"]
 const ITEM_IDS: Array[StringName] = [&"food", &"wood", &"iron", &"herbs", &"slime_gel",
 		&"wolf_pelt", &"bandit_insignia", &"health_potion"]
 const ENEMY_IDS: Array[StringName] = [&"slime", &"mini_slime", &"cave_slime", &"wolf", &"bandit"]
 ## Quiet days simulated before day 1 so markets start near their natural balance.
 const WARM_UP_DAYS := 30
+## The morning report mentions price moves at least this big (8%).
+const MORNING_REPORT_MIN_CHANGE := 0.08
 
 var items: Dictionary = {}    # id -> ItemData
 var enemies: Dictionary = {}  # id -> EnemyData
@@ -21,6 +25,7 @@ var commodities: Array[Commodity] = []
 var settlement_data: Array[SettlementData] = []
 var business_data: Array[BusinessData] = []
 var event_data: Array[EventData] = []
+var minor_event_data: Array[MinorEventData] = []
 
 var world: WorldState
 var economy: EconomySystem
@@ -46,8 +51,10 @@ func _ready() -> void:
 func new_game(seed_value: int = 0) -> void:
 	GameClock.reset()
 	world = WorldState.new()
+	var seed_to_use := seed_value if seed_value != 0 else randi()
 	economy = EconomySystem.new(commodities, settlement_data, business_data)
-	events = EventSystem.new(event_data, seed_value if seed_value != 0 else randi())
+	economy.rng.seed = seed_to_use + 1
+	events = EventSystem.new(event_data, seed_to_use, minor_event_data)
 	player = PlayerState.new(items)
 	seen_prices = {}
 	for i in WARM_UP_DAYS:
@@ -60,6 +67,26 @@ func _on_day_advanced(day: int) -> void:
 	events.daily_tick(world, day)
 	economy.daily_tick(world)
 	EventBus.economy_updated.emit(day)
+	for line in morning_report():
+		EventBus.news.emit(line, "info")
+
+
+## The two biggest price moves since yesterday, with their main reason.
+func morning_report() -> Array[String]:
+	var moves: Array = []  # [abs change, text]
+	for s in SETTLEMENT_IDS:
+		for id in COMMODITY_IDS:
+			var m := economy.market(s, id)
+			var change := m.price / m.price_days_ago(1) - 1.0
+			if absf(change) >= MORNING_REPORT_MIN_CHANGE:
+				var why := economy.explain(s, id)[0]
+				moves.append([absf(change), "Morning prices: %s in %s %+d%% (%s)" % [
+					m.commodity.display_name, settlement_name(s), roundi(change * 100), why]])
+	moves.sort_custom(func(a, b): return a[0] > b[0])
+	var result: Array[String] = []
+	for move in moves.slice(0, 2):
+		result.append(move[1])
+	return result
 
 
 func _on_enemy_killed(_enemy_id: StringName, group: StringName) -> void:
@@ -128,3 +155,5 @@ func _load_static_data() -> void:
 		business_data.append(load("res://data/businesses/%s.tres" % id))
 	for id in EVENT_IDS:
 		event_data.append(load("res://data/events/%s.tres" % id))
+	for id in MINOR_EVENT_IDS:
+		minor_event_data.append(load("res://data/events/minor/%s.tres" % id))

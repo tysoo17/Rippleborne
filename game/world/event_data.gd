@@ -24,6 +24,8 @@ extends Resource
 @export var enemy_count: int = 6
 
 @export_group("News")
+## What NPCs whisper in the days before it starts.
+@export_multiline var rumor: String = ""
 @export_multiline var start_news: String = ""
 @export_multiline var end_news_natural: String = ""
 @export_multiline var end_news_player: String = ""

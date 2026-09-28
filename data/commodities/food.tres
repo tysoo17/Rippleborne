@@ -7,6 +7,8 @@
 script = ExtResource("2_c41d5")
 id = &"food"
 display_name = "Food"
+elasticity = 0.7
+smoothing = 0.2
 icon = ExtResource("1_wwnlh")
 base_price = 4.0
 demand_sensitivity = 0.25
