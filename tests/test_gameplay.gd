@@ -47,6 +47,7 @@ func run() -> void:
 	var forest := get_tree().get_nodes_in_group("enemies").filter(func(e): return e.group == &"forest")
 	check(forest.size() >= 10, "forest spawners filled (%d enemies)" % forest.size())
 
+	test_world_art()
 	await test_movement_feel()
 	await test_combo_and_special_moves()
 	await test_fight_and_loot(forest)
@@ -99,6 +100,16 @@ func spawn_enemy(id: StringName, at: Vector2, tweak: Callable = Callable()) -> E
 	enemy.position = at
 	main.get_node("World/Entities").add_child(enemy)
 	return enemy
+
+
+func test_world_art() -> void:
+	var world := main.get_node("World")
+	var edges: TileMapLayer = world.get_node("GrassEdges")
+	var decor: TileMapLayer = world.get_node("Decor")
+	var lamps := get_tree().get_nodes_in_group("lamps")
+	check(edges.get_used_cells().size() > 100, "grass edges soften %d borders" % edges.get_used_cells().size())
+	check(decor.get_used_cells().size() > 200, "%d flowers, pebbles and tufts on the grass" % decor.get_used_cells().size())
+	check(lamps.size() == 8, "8 street lamps on the plazas")
 
 
 func test_movement_feel() -> void:

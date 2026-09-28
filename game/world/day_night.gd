@@ -1,3 +1,4 @@
+class_name DayNight
 extends CanvasModulate
 ## Tints the world by time of day. The HUD is on a CanvasLayer, so it stays bright.
 

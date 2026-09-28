@@ -6,6 +6,7 @@ An indie economic game: pixel 2D 3/4 top-down, system-driven RPG. Single-player,
 
 ![Mining Village](docs/images/v0.1-village.png)
 ![Market Board](docs/images/v0.1-market-board.png)
+![Night](docs/images/v0.2-night.png)
 
 ## Chạy game
 
@@ -29,7 +30,7 @@ Hướng dẫn chơi thử và giải thích hệ thống: [docs/huong-dan/03-v0
 
 Mở một trong các scene dưới đây rồi bấm **F6**, kết quả hiện ở tab Output:
 
-- `tests/test_simulation.tscn`: kinh tế, sự kiện, save (chạy 10.000 ngày)
+- `tests/test_simulation.tscn`: kinh tế, sự kiện lớn và nhỏ, tin đồn, việc làm, save (chạy 10.000 ngày)
 - `tests/test_gameplay.tscn`: chơi thật trong scene chính (di chuyển, combo, quái, nhặt đồ, mua bán, dọn mỏ, save)
 
 Không cần mở cửa sổ game: `godot --headless --path . tests/test_simulation.tscn`
@@ -69,5 +70,5 @@ NOT_NOW.md          Ý tưởng để dành, chưa làm trong v0.1
 - [x] Sandbox kinh tế ([giải thích](docs/huong-dan/02-economy-sandbox.md))
 - [x] v0.1: thế giới, combat, vật phẩm, kinh tế 4 hàng hóa, sự kiện, Market Board, save ([giải thích](docs/huong-dan/03-v0.1.md))
 - [x] Gói A: cảm giác điều khiển, combo, hiệu ứng, nhạc ([giải thích](docs/huong-dan/04-cam-giac-dieu-khien.md))
-- [ ] Gói B: thị trường sống động hơn
+- [x] Gói B, C, D: thị trường sống động, NPC nói chuyện + việc làm + uy tín, đồ họa ([giải thích](docs/huong-dan/05-thi-truong-npc-do-hoa.md))
 - [ ] Chơi thử và quyết định theo Decision Gate (PDF mục 16)
