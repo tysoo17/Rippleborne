@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MinorEventData" format=3]
+
+[ext_resource type="Script" path="res://game/world/minor_event_data.gd" id="1_minor"]
+
+[resource]
+script = ExtResource("1_minor")
+id = &"herb_bloom"
+display_name = "Herb Bloom"
+business_id = &"herbalists"
+factor = 1.7
+min_days = 3
+max_days = 4
+weight = 0.8
+news = "The forest herbs are in full bloom. The herbalists bring home full baskets."
+reason = "Herbs in bloom"

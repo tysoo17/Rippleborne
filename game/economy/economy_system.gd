@@ -21,12 +21,19 @@ const MIN_ROUTE_EFFICIENCY := 0.1
 const MIN_FED_EFFICIENCY := 0.3
 ## Shops add this margin when selling to the player and take it when buying.
 const SHOP_MARGIN := 0.1
+## Everyday ups and downs: production and demand vary by up to this share.
+const DAILY_NOISE := 0.07
+## Buying a tenth of what a market wants raises its price by this / 10.
+const PLAYER_PRICE_IMPACT := 0.5
 
 var commodities: Dictionary = {}  # id -> Commodity
 var settlements: Dictionary = {}  # id -> Settlement
 var businesses: Array[BusinessData] = []
 var day: int = 0
 var last_route_risk: float = 0.0
+var rng := RandomNumberGenerator.new()
+## Shop margin per settlement; a good reputation lowers it (set by the job system).
+var shop_margins: Dictionary = {}
 
 
 func _init(p_commodities: Array[Commodity], p_settlements: Array[SettlementData],
@@ -56,7 +63,10 @@ func daily_tick(world: WorldState) -> void:
 	for s: Settlement in settlements.values():
 		for id in s.markets:
 			var m: Market = s.markets[id]
-			m.consume()
+			var event_factor := world.demand_factor(s.data.id, id)
+			m.consume(event_factor * _noise())
+			for reason in world.modifier_reasons(&"", s.data.id, id):
+				s.ledger[id].demand_notes.append(reason)
 			s.ledger[id].used = m.last_used
 			s.ledger[id].wanted = m.last_wanted
 			m.update_price()
@@ -82,7 +92,8 @@ func _produce(world: WorldState) -> void:
 			continue
 		var s: Settlement = settlements[b.settlement_id]
 		var efficiency := business_efficiency(b, world)
-		var amount := b.output_per_day * efficiency
+		var event_factor := world.production_factor(b.id)
+		var amount := b.output_per_day * efficiency * event_factor * _noise()
 		s.markets[b.output_commodity].stock += amount
 		var entry: Dictionary = s.ledger[b.output_commodity]
 		entry.produced += amount
@@ -91,6 +102,13 @@ func _produce(world: WorldState) -> void:
 			entry.production_notes.append("%s stopped (%s)" % [b.display_name, WorldState.flag_reason(b.stopped_by)])
 		elif efficiency < 0.95:
 			entry.production_notes.append("%s at %d%%: workers short on food" % [b.display_name, roundi(efficiency * 100)])
+		for reason in world.modifier_reasons(b.id):
+			entry.production_notes.append("%s: %s" % [b.display_name, reason])
+
+
+## Random everyday variation around 1.0.
+func _noise() -> float:
+	return 1.0 + rng.randf_range(-DAILY_NOISE, DAILY_NOISE)
 
 
 # --- 2. Trade ----------------------------------------------------------------
@@ -132,27 +150,33 @@ func _ship(id: StringName, from: Settlement, to: Settlement, risk: float, effici
 
 # --- Player trades -------------------------------------------------------
 
+func shop_margin(settlement_id: StringName) -> float:
+	return float(shop_margins.get(settlement_id, SHOP_MARGIN))
+
+
 ## What the shop charges the player for one unit.
 func buy_price(settlement_id: StringName, id: StringName) -> int:
-	return maxi(1, ceili(market(settlement_id, id).price * (1.0 + SHOP_MARGIN)))
+	return maxi(1, ceili(market(settlement_id, id).price * (1.0 + shop_margin(settlement_id))))
 
 
 ## What the shop pays the player for one unit.
 func sell_price(settlement_id: StringName, id: StringName) -> int:
-	return maxi(1, floori(market(settlement_id, id).price * (1.0 - SHOP_MARGIN)))
+	return maxi(1, floori(market(settlement_id, id).price * (1.0 - shop_margin(settlement_id))))
 
 
-## The player takes goods out of the market. Stock changes now; the price
-## reacts at midnight like for everyone else.
+## The player takes goods out of the market. Stock changes now and the price
+## nudges up right away; the big move still comes at midnight.
 func player_bought(settlement_id: StringName, id: StringName, quantity: int) -> void:
 	var s: Settlement = settlements[settlement_id]
 	s.markets[id].stock = maxf(0.0, s.markets[id].stock - quantity)
+	s.markets[id].apply_player_trade(quantity, PLAYER_PRICE_IMPACT)
 	s.ledger[id].player_bought += quantity
 
 
 func player_sold(settlement_id: StringName, id: StringName, quantity: int) -> void:
 	var s: Settlement = settlements[settlement_id]
 	s.markets[id].stock += quantity
+	s.markets[id].apply_player_trade(-quantity, PLAYER_PRICE_IMPACT)
 	s.ledger[id].player_sold += quantity
 
 
@@ -170,9 +194,9 @@ func explain(settlement_id: StringName, id: StringName) -> Array[String]:
 	var reasons: Array = []  # [weight, text]
 	var normal: float = e.normal_production
 	if normal > 0.0:
-		if e.produced < normal * 0.95:
+		if not e.production_notes.is_empty():
 			for note in e.production_notes:
-				reasons.append([normal - e.produced + 50.0, "%s: made %.0f instead of %.0f" % [note, e.produced, normal]])
+				reasons.append([absf(normal - e.produced) + 50.0, "%s: made %.0f instead of %.0f" % [note, e.produced, normal]])
 		else:
 			reasons.append([e.produced * 0.2, "Made here: %.0f" % e.produced])
 	if e.route_risk >= 0.3:
@@ -181,6 +205,8 @@ func explain(settlement_id: StringName, id: StringName) -> Array[String]:
 		reasons.append([e.imported * 0.5, "Caravans brought in %.0f" % e.imported])
 	if e.exported >= 0.5:
 		reasons.append([e.exported * 0.5, "Caravans took %.0f away" % e.exported])
+	for note in e.get("demand_notes", []):
+		reasons.append([45.0, "Demand: %s" % note])
 	var shortfall: float = e.wanted - e.used
 	if shortfall >= 0.5:
 		reasons.append([shortfall * 2.0 + 20.0, "Shortage: people wanted %.0f, got %.0f" % [e.wanted, e.used]])
@@ -201,12 +227,16 @@ func to_dict() -> Dictionary:
 	var data := {}
 	for id in settlements:
 		data[String(id)] = settlements[id].to_dict()
-	return {"day": day, "last_route_risk": last_route_risk, "settlements": data}
+	return {"day": day, "last_route_risk": last_route_risk, "settlements": data,
+			"rng_seed": str(rng.seed), "rng_state": str(rng.state)}
 
 
 func from_dict(saved: Dictionary) -> void:
 	day = int(saved.get("day", 0))
 	last_route_risk = float(saved.get("last_route_risk", 0.0))
+	if saved.has("rng_state"):
+		rng.seed = int(str(saved.rng_seed))
+		rng.state = int(str(saved.rng_state))
 	var data: Dictionary = saved.get("settlements", {})
 	for id in settlements:
 		if data.has(String(id)):

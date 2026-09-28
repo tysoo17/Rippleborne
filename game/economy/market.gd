@@ -39,10 +39,11 @@ func desired_stock() -> float:
 
 
 ## People buy less when price is high and more when it is low.
+## demand_multiplier: today's extra/lower demand (festival, cold snap, daily ups and downs).
 ## Returns how many units were actually used today.
-func consume() -> float:
+func consume(demand_multiplier: float = 1.0) -> float:
 	var factor := pow(commodity.base_price / price, commodity.demand_sensitivity)
-	last_wanted = daily_demand * clampf(factor, MIN_DEMAND_FACTOR, MAX_DEMAND_FACTOR)
+	last_wanted = daily_demand * demand_multiplier * clampf(factor, MIN_DEMAND_FACTOR, MAX_DEMAND_FACTOR)
 	last_used = minf(last_wanted, stock)
 	stock -= last_used
 	return last_used
@@ -72,6 +73,15 @@ func update_price() -> void:
 	price_history.append(price)
 	if price_history.size() > MAX_HISTORY:
 		price_history.pop_front()
+
+
+## A trade by the player moves the price right away, a little per unit:
+## buying (quantity > 0) pushes it up, selling (quantity < 0) pushes it down.
+func apply_player_trade(quantity: float, impact: float) -> void:
+	var change := impact * quantity / maxf(desired_stock(), 1.0)
+	price = clampf(price * (1.0 + change),
+			commodity.base_price * commodity.min_multiplier,
+			commodity.base_price * commodity.max_multiplier)
 
 
 ## Price n days ago (1 = yesterday). Falls back to the oldest known price.

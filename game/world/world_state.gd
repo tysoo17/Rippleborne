@@ -15,6 +15,9 @@ var bandits_active: bool = false
 var bandits_left: int = 0
 ## Gather spots that were used: node id -> day they are ready again.
 var depleted_until: Dictionary = {}
+## Short effects of small events: id -> {"business", "settlement", "commodity",
+## "factor", "days_left", "reason"}. Economy multiplies output or demand by them.
+var modifiers: Dictionary = {}
 
 
 ## Look up a flag by name, so data files can say "stopped_by = mine_infested".
@@ -35,6 +38,35 @@ static func flag_reason(flag: StringName) -> String:
 		&"bandits_active":
 			return "bandits on the road"
 	return String(flag)
+
+
+## Multiplier on a business's output from active small events (1.0 = normal).
+func production_factor(business_id: StringName) -> float:
+	var factor := 1.0
+	for m: Dictionary in modifiers.values():
+		if StringName(m.get("business", "")) == business_id:
+			factor *= float(m.factor)
+	return factor
+
+
+## Multiplier on what a settlement wants of a commodity (1.0 = normal).
+func demand_factor(settlement_id: StringName, commodity_id: StringName) -> float:
+	var factor := 1.0
+	for m: Dictionary in modifiers.values():
+		if StringName(m.get("settlement", "")) == settlement_id and StringName(m.get("commodity", "")) == commodity_id:
+			factor *= float(m.factor)
+	return factor
+
+
+## Names of the small events affecting this business or this demand.
+func modifier_reasons(business_id: StringName, settlement_id: StringName = &"", commodity_id: StringName = &"") -> Array[String]:
+	var result: Array[String] = []
+	for m: Dictionary in modifiers.values():
+		var hits_business := business_id != &"" and StringName(m.get("business", "")) == business_id
+		var hits_demand := settlement_id != &"" and StringName(m.get("settlement", "")) == settlement_id 				and StringName(m.get("commodity", "")) == commodity_id
+		if hits_business or hits_demand:
+			result.append("%s (%+d%%)" % [m.reason, roundi((float(m.factor) - 1.0) * 100)])
+	return result
 
 
 ## 0 = perfectly safe road, 1 = nobody dares to travel.
@@ -78,7 +110,7 @@ func to_dict() -> Dictionary:
 	return {
 		"mine_infested": mine_infested, "mine_monsters_left": mine_monsters_left,
 		"bandits_active": bandits_active, "bandits_left": bandits_left,
-		"depleted_until": depleted_until,
+		"depleted_until": depleted_until, "modifiers": modifiers,
 	}
 
 
@@ -87,6 +119,7 @@ func from_dict(data: Dictionary) -> void:
 	mine_monsters_left = int(data.get("mine_monsters_left", 0))
 	bandits_active = bool(data.get("bandits_active", false))
 	bandits_left = int(data.get("bandits_left", 0))
+	modifiers = data.get("modifiers", {})
 	depleted_until = {}
 	var saved: Dictionary = data.get("depleted_until", {})
 	for key in saved:

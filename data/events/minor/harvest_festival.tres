@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MinorEventData" format=3]
+
+[ext_resource type="Script" path="res://game/world/minor_event_data.gd" id="1_minor"]
+
+[resource]
+script = ExtResource("1_minor")
+id = &"harvest_festival"
+display_name = "Harvest Festival"
+settlement_id = &"town"
+commodity_id = &"food"
+factor = 1.4
+min_days = 3
+max_days = 4
+weight = 1.0
+news = "Harvest festival in Town! Everyone is feasting, food is flying off the stalls."
+reason = "Harvest festival"

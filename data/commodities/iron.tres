@@ -7,6 +7,8 @@
 script = ExtResource("2_h8yco")
 id = &"iron"
 display_name = "Iron"
+elasticity = 0.7
+smoothing = 0.2
 icon = ExtResource("1_s8bh3")
 transport_cost_per_unit = 2.0
 trade_cap_per_day = 30.0

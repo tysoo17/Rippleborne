@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MinorEventData" format=3]
+
+[ext_resource type="Script" path="res://game/world/minor_event_data.gd" id="1_minor"]
+
+[resource]
+script = ExtResource("1_minor")
+id = &"big_order"
+display_name = "Big Order"
+settlement_id = &"town"
+commodity_id = &"iron"
+factor = 1.8
+min_days = 3
+max_days = 5
+weight = 1.0
+news = "The blacksmith took a big order of tools. He needs much more iron than usual."
+reason = "Blacksmith's big order"

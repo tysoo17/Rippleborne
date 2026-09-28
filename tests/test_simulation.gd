@@ -14,6 +14,8 @@ func _ready() -> void:
 	test_bandit_chain()
 	test_player_trades_move_prices()
 	test_events_start_and_end()
+	test_small_events()
+	test_rumors_come_first()
 	test_ten_thousand_days()
 	test_save_round_trip()
 	print("RESULT: ", "ALL PASS" if failures == 0 else "%d FAILED" % failures)
@@ -27,7 +29,9 @@ func check(ok: bool, label: String) -> void:
 
 
 func new_economy() -> EconomySystem:
-	return EconomySystem.new(Game.commodities, Game.settlement_data, Game.business_data)
+	var economy := EconomySystem.new(Game.commodities, Game.settlement_data, Game.business_data)
+	economy.rng.seed = 12345
+	return economy
 
 
 ## True when every stock and price is a sane number inside its clamps.
@@ -62,16 +66,26 @@ func test_quiet_world_is_stable() -> void:
 	for s in Game.SETTLEMENT_IDS:
 		for c in Game.COMMODITY_IDS:
 			before[[s, c]] = price(economy, s, c)
-	run(economy, world, 50)
-	var drift := 0.0
+	# With everyday ups and downs prices keep moving, but stay around a balance.
+	var low := {}
+	var high := {}
+	var biggest_daily := 0.0
+	for day in 100:
+		economy.daily_tick(world)
+		for s in Game.SETTLEMENT_IDS:
+			for c in Game.COMMODITY_IDS:
+				var m := economy.market(s, c)
+				low[[s, c]] = minf(low.get([s, c], INF), m.price)
+				high[[s, c]] = maxf(high.get([s, c], 0.0), m.price)
+				biggest_daily = maxf(biggest_daily, absf(m.price / m.price_days_ago(1) - 1.0))
+	var widest := 0.0
 	var summary: Array[String] = []
-	for s in Game.SETTLEMENT_IDS:
-		for c in Game.COMMODITY_IDS:
-			var p := price(economy, s, c)
-			drift = maxf(drift, absf(p - before[[s, c]]) / p)
-			summary.append("%s %s %.2f" % [s, c, p])
-	check(drift < 0.02, "prices settle (max drift %.1f%% over 50 days)" % (drift * 100))
-	print("      equilibrium: ", ", ".join(summary))
+	for key in low:
+		widest = maxf(widest, high[key] / low[key])
+		summary.append("%s %s %.1f-%.1f" % [key[0], key[1], low[key], high[key]])
+	check(biggest_daily > 0.01, "prices move a little every day (biggest daily move %.1f%%)" % (biggest_daily * 100))
+	check(widest < 1.6, "but stay near their balance without events (widest range x%.2f)" % widest)
+	print("      100 quiet days: ", ", ".join(summary))
 	var gap := price(economy, &"town", &"iron") - price(economy, &"village", &"iron")
 	check(gap > 2.0, "iron is cheaper in the village than in town (gap %.2f)" % gap)
 
@@ -93,7 +107,7 @@ func test_mine_infestation_chain() -> void:
 	check(price(economy, &"town", &"iron") > calm * 1.4, "day after clearing: price still high (no instant reset)")
 	run(economy, world, 59)
 	var recovered := price(economy, &"town", &"iron")
-	check(absf(recovered - calm) < calm * 0.1, "60 days after clearing: %.2f, back near %.2f" % [recovered, calm])
+	check(absf(recovered - calm) < calm * 0.2, "60 days after clearing: %.2f, back near %.2f" % [recovered, calm])
 
 
 func test_bandit_chain() -> void:
@@ -119,7 +133,13 @@ func test_player_trades_move_prices() -> void:
 	var world := WorldState.new()
 	run(economy, world, 200)
 	var before := price(economy, &"town", &"iron")
+	economy.player_bought(&"town", &"iron", 10)
+	var right_after := price(economy, &"town", &"iron")
+	check(right_after > before * 1.03, "buying 10 iron nudges the price up at once (%.2f -> %.2f)" % [before, right_after])
+	economy.player_sold(&"town", &"iron", 10)
+	before = price(economy, &"town", &"iron")
 	economy.player_sold(&"town", &"iron", 60)
+	check(price(economy, &"town", &"iron") < before, "selling pushes it down at once")
 	run(economy, world, 3)
 	var after := price(economy, &"town", &"iron")
 	check(after < before * 0.9, "player sells 60 iron in town: %.2f -> %.2f" % [before, after])
@@ -150,10 +170,58 @@ func test_events_start_and_end() -> void:
 			"killing all 6 clears the mine")
 
 
+func test_small_events() -> void:
+	var world := WorldState.new()
+	var events := EventSystem.new([], 5, Game.minor_event_data)
+	var started := 0
+	var seen := {}
+	for day in range(1, 201):
+		var before := world.modifiers.keys()
+		events.daily_tick(world, day)
+		for id in world.modifiers:
+			if not before.has(id):
+				started += 1
+				seen[id] = true
+		if world.modifiers.size() > EventSystem.MAX_MINOR:
+			started = -999
+	check(started >= 40, "small events happen often (%d in 200 days, %d kinds)" % [started, seen.size()])
+
+	var economy := new_economy()
+	world = WorldState.new()
+	run(economy, world, 100)
+	var used_before := economy.market(&"town", &"food").last_used
+	var events2 := EventSystem.new([], 1, Game.minor_event_data)
+	events2.start_minor(&"harvest_festival", world)
+	economy.daily_tick(world)
+	var used_after := economy.market(&"town", &"food").last_used
+	check(used_after > used_before * 1.2, "a harvest festival makes the Town eat more food (%.1f -> %.1f)" % [used_before, used_after])
+	check(" ".join(economy.explain(&"town", &"food")).contains("Harvest festival"), "the board names the festival")
+	events2.start_minor(&"rich_vein", world)
+	economy.daily_tick(world)
+	var made: float = economy.settlements[&"village"].last_ledger[&"iron"].produced
+	check(made > 25.0, "a rich vein makes the mine dig more (%.1f iron)" % made)
+	check(" ".join(economy.explain(&"village", &"iron")).contains("Rich vein"), "the board names the rich vein")
+
+
+func test_rumors_come_first() -> void:
+	var world := WorldState.new()
+	var events := EventSystem.new(Game.event_data, 7)
+	var rumor_day := -1
+	var start_day := -1
+	for day in range(1, 60):
+		events.daily_tick(world, day)
+		if rumor_day < 0 and not events.rumors().is_empty():
+			rumor_day = day
+		if start_day < 0 and (world.mine_infested or world.bandits_active):
+			start_day = day
+	check(rumor_day > 0 and start_day == rumor_day + EventSystem.WARNING_DAYS,
+			"rumours spread %d days before an event (rumour day %d, event day %d)" % [EventSystem.WARNING_DAYS, rumor_day, start_day])
+
+
 func test_ten_thousand_days() -> void:
 	var economy := new_economy()
 	var world := WorldState.new()
-	var events := EventSystem.new(Game.event_data, 99)
+	var events := EventSystem.new(Game.event_data, 99, Game.minor_event_data)
 	var ok := true
 	var infestations := 0
 	var raids := 0

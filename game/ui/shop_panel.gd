@@ -12,19 +12,19 @@ var _rows: VBoxContainer
 
 
 func build() -> void:
-	custom_minimum_size = Vector2(440, 0)
+	custom_minimum_size = Vector2(480, 0)
 	_money = label("")
 	body.add_child(_money)
 	var header := HBoxContainer.new()
-	for spec in [["", 16.0], ["Item", 92.0], ["Buy", 40.0], ["Sell", 40.0], ["Stock", 58.0], ["You have", 54.0]]:
+	for spec in [["", 16.0], ["Item", 92.0], ["Buy", 40.0], ["Sell", 40.0], ["Today", 40.0], ["Stock", 58.0], ["You have", 54.0]]:
 		header.add_child(label(spec[0], spec[1], Color(0.65, 0.62, 0.58)))
 	body.add_child(header)
 	_rows = VBoxContainer.new()
 	_rows.add_theme_constant_override("separation", 2)
 	body.add_child(_rows)
-	var note := label("Prices are set every midnight from stock and demand. Whatever you sell here adds to the stock, whatever you buy is taken from it.", 0.0, Color(0.65, 0.62, 0.58))
+	var note := label("Prices are set every midnight from stock and demand. What you sell adds to the stock and pushes the price down a little right away; what you buy does the opposite.", 0.0, Color(0.65, 0.62, 0.58))
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	note.custom_minimum_size.x = 420
+	note.custom_minimum_size.x = 460
 	note.add_theme_font_size_override("font_size", 10)
 	body.add_child(note)
 
@@ -72,6 +72,8 @@ func _commodity_row(s: StringName, id: StringName) -> HBoxContainer:
 	row.add_child(label(item.display_name, 88.0))
 	row.add_child(label("%d g" % buy, 40.0))
 	row.add_child(label("%d g" % sell, 40.0))
+	var today := m.price / m.price_days_ago(1) - 1.0
+	row.add_child(label("%+d%%" % roundi(today * 100), 40.0, change_color(today)))
 	row.add_child(label("%d %s" % [floori(m.stock), m.stock_status().to_lower()], 58.0, status_color(m.stock_status())))
 	row.add_child(label(str(have), 54.0))
 	var buy_button := button("Buy", _buy.bind(s, id), 40.0)
@@ -124,6 +126,7 @@ func _potion_row() -> HBoxContainer:
 	row.add_child(label(potion.display_name, 88.0))
 	row.add_child(label("%d g" % price, 40.0))
 	row.add_child(label("-", 40.0))
+	row.add_child(label("", 40.0))
 	row.add_child(label("from herbs", 58.0, Color(0.65, 0.62, 0.58)))
 	row.add_child(label(str(Game.player.inventory.count_of(potion.id)), 54.0))
 	var buy_button := button("Buy", _buy_potion, 40.0)
@@ -150,6 +153,7 @@ func _loot_row(item: ItemData) -> HBoxContainer:
 	row.add_child(label(item.display_name, 88.0))
 	row.add_child(label("-", 40.0))
 	row.add_child(label("%d g" % item.base_value, 40.0))
+	row.add_child(label("", 40.0))
 	row.add_child(label("fixed price", 58.0, Color(0.65, 0.62, 0.58)))
 	row.add_child(label(str(have), 54.0))
 	row.add_child(label("", 40.0))

@@ -31,7 +31,7 @@ func _empty_ledger() -> Dictionary:
 		result[id] = {
 			"produced": 0.0, "normal_production": 0.0, "production_notes": [],
 			"imported": 0.0, "exported": 0.0, "route_risk": 0.0,
-			"used": 0.0, "wanted": 0.0,
+			"used": 0.0, "wanted": 0.0, "demand_notes": [],
 			"player_bought": 0.0, "player_sold": 0.0,
 		}
 	return result

@@ -12,6 +12,7 @@ cooldown_days = 12
 min_duration = 15
 max_duration = 25
 enemy_count = 4
+rumor = "A traveller saw armed men lurking in the trees north of the road."
 start_news = "Bandits have set up camp by the road. Caravans are afraid to travel."
 end_news_natural = "Soldiers from the Town chased the bandits away."
 end_news_player = "You broke up the bandit camp! Caravans are back on the road."

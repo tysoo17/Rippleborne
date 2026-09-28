@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MinorEventData" format=3]
+
+[ext_resource type="Script" path="res://game/world/minor_event_data.gd" id="1_minor"]
+
+[resource]
+script = ExtResource("1_minor")
+id = &"storm"
+display_name = "Storm"
+business_id = &"woodcutters"
+factor = 0.5
+min_days = 2
+max_days = 3
+weight = 0.8
+news = "A storm blocked the forest paths. The woodcutters bring back less wood."
+reason = "Storm damage"
