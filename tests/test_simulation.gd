@@ -16,6 +16,7 @@ func _ready() -> void:
 	test_events_start_and_end()
 	test_small_events()
 	test_rumors_come_first()
+	test_jobs_and_reputation()
 	test_ten_thousand_days()
 	test_save_round_trip()
 	print("RESULT: ", "ALL PASS" if failures == 0 else "%d FAILED" % failures)
@@ -216,6 +217,43 @@ func test_rumors_come_first() -> void:
 			start_day = day
 	check(rumor_day > 0 and start_day == rumor_day + EventSystem.WARNING_DAYS,
 			"rumours spread %d days before an event (rumour day %d, event day %d)" % [EventSystem.WARNING_DAYS, rumor_day, start_day])
+
+
+func test_jobs_and_reputation() -> void:
+	var economy := new_economy()
+	var world := WorldState.new()
+	var events := EventSystem.new(Game.event_data, 3)
+	var jobs := JobSystem.new()
+	var player := PlayerState.new(Game.items)
+	run(economy, world, 100)
+	jobs.daily_tick(economy, events)
+	var quiet_jobs := jobs.jobs.size()
+	world.set_mine_infested(true, 6)
+	run(economy, world, 10)
+	jobs.daily_tick(economy, events)
+	var iron_jobs := jobs.jobs.filter(func(j): return j.commodity == "iron")
+	check(not iron_jobs.is_empty(), "an iron shortage posts delivery jobs (%d jobs before, %s now)" % [quiet_jobs, jobs.jobs.map(func(j): return j.text)])
+	var job: Dictionary = iron_jobs[0]
+	var s := StringName(job.settlement)
+	check(jobs.deliver(job, economy, player) != "", "you can't deliver without the goods")
+	player.inventory.add(&"iron", int(job.amount))
+	var stock := economy.market(s, &"iron").stock
+	var money := player.money
+	check(jobs.deliver(job, economy, player) == "", "delivering works with the goods in the bag")
+	check(economy.market(s, &"iron").stock == stock + int(job.amount), "delivered iron goes into that market's stock")
+	check(player.money == money + int(job.reward) and jobs.reputation_of(s) == JobSystem.REP_PER_DELIVERY,
+			"it pays %d gold and raises reputation" % job.reward)
+	var margin_before := EconomySystem.SHOP_MARGIN
+	jobs.change_reputation(s, 100, economy)
+	check(economy.shop_margin(s) < margin_before, "a high reputation lowers the shop margin (%.2f)" % economy.shop_margin(s))
+
+	events.start_event(&"bandit_activity", world)
+	jobs.refresh(economy, events)
+	var bounty := jobs.jobs.filter(func(j): return j.kind == "bounty")
+	check(bounty.size() == 1, "bandits post a bounty")
+	money = player.money
+	var paid := jobs.close_bounty(&"bandit_activity", true, economy, player)
+	check(paid > 0 and player.money == money + paid, "ending the raid yourself pays the bounty (%d)" % paid)
 
 
 func test_ten_thousand_days() -> void:

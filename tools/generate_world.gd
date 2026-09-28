@@ -98,12 +98,15 @@ func _layout() -> void:
 	_house(5, 22, 5, 3, 2)
 	_house(5, 28, 5, 3, 2)
 	_house(28, 36, 5, 3, 2)
-	_prop("Innkeeper", 8, 18, "npc_innkeeper", Vector2(14, 8), "Rest at the inn", &"inn", &"town")
-	_prop("Blacksmith", 29, 18, "npc_blacksmith", Vector2(14, 8), "Talk to the blacksmith", &"blacksmith", &"town")
-	_prop("TownMerchant", 19, 25, "npc_merchant", Vector2(14, 8))
+	_prop("Innkeeper", 8, 18, "npc_innkeeper", Vector2(14, 8), "Rest at the inn", &"inn", &"town", "Greta", &"innkeeper")
+	_prop("Blacksmith", 29, 18, "npc_blacksmith", Vector2(14, 8), "Talk to the blacksmith", &"blacksmith", &"town", "Bram", &"blacksmith")
+	_prop("TownMerchant", 19, 25, "npc_merchant", Vector2(14, 8), "", &"", &"town", "Mira", &"merchant")
 	_prop("TownStall", 19, 26, "market_stall", Vector2(56, 10), "Trade at the market", &"shop", &"town")
 	_prop("TownBoard", 23, 27, "market_board", Vector2(26, 6), "Read the market board", &"market_board", &"town")
-	_prop("Farmer", 10, 35, "npc_villager", Vector2(14, 8))
+	_prop("Farmer", 10, 35, "npc_villager", Vector2(14, 8), "", &"", &"town", "Hob", &"farmer", 36.0, true)
+	_prop("TownJobBoard", 15, 27, "notice_board", Vector2(26, 6), "Read the job board", &"jobs", &"town")
+	_prop("Guard", 31, 27, "npc_guard", Vector2(14, 8), "", &"", &"town", "Sergeant Pike", &"guard")
+	_prop("Townsperson", 15, 31, "npc_townsperson", Vector2(14, 8), "", &"", &"town", "Old Tilda", &"townsperson", 40.0, true)
 	_location("Town", 3, 10, 34, 48)
 
 	# Road and bandit camp
@@ -127,11 +130,12 @@ func _layout() -> void:
 	_house(80, 37, 5, 3, 2)
 	_house(99, 37, 5, 3, 2)
 	_house(90, 37, 5, 3, 2)
-	_prop("VillageMerchant", 91, 27, "npc_merchant", Vector2(14, 8))
+	_prop("VillageMerchant", 91, 27, "npc_merchant", Vector2(14, 8), "", &"", &"village", "Oskar", &"merchant")
 	_prop("VillageStall", 91, 28, "market_stall", Vector2(56, 10), "Trade at the market", &"shop", &"village")
 	_prop("VillageBoard", 95, 29, "market_board", Vector2(26, 6), "Read the market board", &"market_board", &"village")
-	_prop("Miner", 88, 32, "npc_villager", Vector2(14, 8))
-	_prop("Villager", 97, 24, "npc_villager", Vector2(14, 8))
+	_prop("Miner", 88, 32, "npc_villager", Vector2(14, 8), "", &"", &"village", "Dunn", &"miner", 30.0, true)
+	_prop("VillageJobBoard", 88, 29, "notice_board", Vector2(26, 6), "Read the job board", &"jobs", &"village")
+	_prop("Villager", 97, 24, "npc_villager", Vector2(14, 8), "", &"", &"village", "Elsa", &"villager", 40.0, true)
 	_location("Mining Village", 78, 14, 107, 45)
 
 	# Mine: rock walls around a cave, entrance at the bottom middle
@@ -246,7 +250,8 @@ func _house(x: int, y: int, w: int, h: int, door_dx: int) -> void:
 
 
 func _prop(node_name: String, x: int, y: int, texture: String, body: Vector2,
-		prompt := "", panel := &"", settlement := &"") -> void:
+		prompt := "", panel := &"", settlement := &"", person := "", role := &"",
+		wander := 0.0, sleeps := false) -> void:
 	var prop = npc_scene.instantiate()
 	prop.name = node_name
 	prop.position = _px(x, y)
@@ -255,6 +260,10 @@ func _prop(node_name: String, x: int, y: int, texture: String, body: Vector2,
 	prop.prompt = prompt
 	prop.panel = panel
 	prop.settlement_id = settlement
+	prop.npc_name = person
+	prop.role = role
+	prop.wander_radius = wander
+	prop.sleeps_at_night = sleeps
 	_add(entities, prop)
 
 

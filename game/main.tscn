@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="PackedScene" path="res://game/world/world.tscn" id="1_world"]
 [ext_resource type="Script" path="res://game/world/day_night.gd" id="2_daynight"]
@@ -13,6 +13,8 @@
 [ext_resource type="Script" path="res://game/ui/pause_menu.gd" id="11_pause"]
 [ext_resource type="Script" path="res://game/ui/help_panel.gd" id="12_help"]
 [ext_resource type="Script" path="res://game/ui/debug_panel.gd" id="13_debug"]
+[ext_resource type="Script" path="res://game/ui/dialogue_panel.gd" id="14_dialogue"]
+[ext_resource type="Script" path="res://game/ui/jobs_panel.gd" id="15_jobs"]
 
 [node name="Main" type="Node2D"]
 
@@ -76,3 +78,11 @@ script = ExtResource("12_help")
 [node name="DebugPanel" type="PanelContainer" parent="UI/Center"]
 layout_mode = 2
 script = ExtResource("13_debug")
+
+[node name="DialoguePanel" type="PanelContainer" parent="UI/Center"]
+layout_mode = 2
+script = ExtResource("14_dialogue")
+
+[node name="JobsPanel" type="PanelContainer" parent="UI/Center"]
+layout_mode = 2
+script = ExtResource("15_jobs")
