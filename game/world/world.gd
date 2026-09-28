@@ -10,5 +10,6 @@ extends Node2D
 func _ready() -> void:
 	var player := get_tree().get_first_node_in_group("player") as Player
 	if player != null:
-		player.set_camera_limits(Rect2i(Vector2i.ZERO, map_size * 32))
+		# Limits are in global coordinates, so they follow the world if it is ever moved.
+		player.set_camera_limits(Rect2i(Vector2i(global_position), map_size * 32))
 	WorldDecor.decorate(self)

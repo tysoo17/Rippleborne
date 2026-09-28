@@ -1,33 +1,34 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene format=3 uid="uid://dwfviry7c86sy"]
 
 [ext_resource type="PackedScene" path="res://game/world/world.tscn" id="1_world"]
-[ext_resource type="Script" path="res://game/world/day_night.gd" id="2_daynight"]
-[ext_resource type="Script" path="res://game/ui/ui_root.gd" id="3_ui"]
+[ext_resource type="Script" uid="uid://bms2qdu4xhr5a" path="res://game/world/day_night.gd" id="2_daynight"]
+[ext_resource type="Script" uid="uid://x30bn0gothe4" path="res://game/ui/ui_root.gd" id="3_ui"]
 [ext_resource type="Theme" path="res://game/ui/game_theme.tres" id="4_theme"]
-[ext_resource type="Script" path="res://game/ui/hud.gd" id="5_hud"]
-[ext_resource type="Script" path="res://game/ui/shop_panel.gd" id="6_shop"]
-[ext_resource type="Script" path="res://game/ui/market_board_panel.gd" id="7_board"]
-[ext_resource type="Script" path="res://game/ui/inventory_panel.gd" id="8_inventory"]
-[ext_resource type="Script" path="res://game/ui/blacksmith_panel.gd" id="9_blacksmith"]
-[ext_resource type="Script" path="res://game/ui/inn_panel.gd" id="10_inn"]
-[ext_resource type="Script" path="res://game/ui/pause_menu.gd" id="11_pause"]
-[ext_resource type="Script" path="res://game/ui/help_panel.gd" id="12_help"]
-[ext_resource type="Script" path="res://game/ui/debug_panel.gd" id="13_debug"]
-[ext_resource type="Script" path="res://game/ui/dialogue_panel.gd" id="14_dialogue"]
-[ext_resource type="Script" path="res://game/ui/jobs_panel.gd" id="15_jobs"]
+[ext_resource type="Script" uid="uid://ct53kbckpvtbi" path="res://game/ui/hud.gd" id="5_hud"]
+[ext_resource type="Script" uid="uid://ckbvedw8v2avs" path="res://game/ui/shop_panel.gd" id="6_shop"]
+[ext_resource type="Script" uid="uid://bxybtx63jmkx2" path="res://game/ui/market_board_panel.gd" id="7_board"]
+[ext_resource type="Script" uid="uid://ba5elqc7kvjgi" path="res://game/ui/inventory_panel.gd" id="8_inventory"]
+[ext_resource type="Script" uid="uid://hy8gu5hbs3s6" path="res://game/ui/blacksmith_panel.gd" id="9_blacksmith"]
+[ext_resource type="Script" uid="uid://ccfn15vnrglu2" path="res://game/ui/inn_panel.gd" id="10_inn"]
+[ext_resource type="Script" uid="uid://lsb5flw4renj" path="res://game/ui/pause_menu.gd" id="11_pause"]
+[ext_resource type="Script" uid="uid://0qfwe8ybundi" path="res://game/ui/help_panel.gd" id="12_help"]
+[ext_resource type="Script" uid="uid://cmus36e8v6v5q" path="res://game/ui/debug_panel.gd" id="13_debug"]
+[ext_resource type="Script" uid="uid://ctrmwrefg0k6u" path="res://game/ui/dialogue_panel.gd" id="14_dialogue"]
+[ext_resource type="Script" uid="uid://beeuo2kkqqr8k" path="res://game/ui/jobs_panel.gd" id="15_jobs"]
 
-[node name="Main" type="Node2D"]
+[node name="Main" type="Node2D" unique_id=1824581392]
 
-[node name="World" parent="." instance=ExtResource("1_world")]
+[node name="World" parent="." unique_id=899755664 instance=ExtResource("1_world")]
+metadata/_edit_lock_ = true
 
-[node name="DayNight" type="CanvasModulate" parent="."]
+[node name="DayNight" type="CanvasModulate" parent="." unique_id=929291972]
 script = ExtResource("2_daynight")
 
-[node name="UI" type="CanvasLayer" parent="."]
+[node name="UI" type="CanvasLayer" parent="." unique_id=1369970372]
 layer = 10
 script = ExtResource("3_ui")
 
-[node name="HUD" type="Control" parent="UI"]
+[node name="HUD" type="Control" parent="UI" unique_id=15141804]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -38,7 +39,7 @@ mouse_filter = 2
 theme = ExtResource("4_theme")
 script = ExtResource("5_hud")
 
-[node name="Center" type="CenterContainer" parent="UI"]
+[node name="Center" type="CenterContainer" parent="UI" unique_id=1196640007]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -47,42 +48,42 @@ grow_vertical = 2
 mouse_filter = 2
 theme = ExtResource("4_theme")
 
-[node name="ShopPanel" type="PanelContainer" parent="UI/Center"]
+[node name="ShopPanel" type="PanelContainer" parent="UI/Center" unique_id=2036219700]
 layout_mode = 2
 script = ExtResource("6_shop")
 
-[node name="MarketBoardPanel" type="PanelContainer" parent="UI/Center"]
+[node name="MarketBoardPanel" type="PanelContainer" parent="UI/Center" unique_id=1400506894]
 layout_mode = 2
 script = ExtResource("7_board")
 
-[node name="InventoryPanel" type="PanelContainer" parent="UI/Center"]
+[node name="InventoryPanel" type="PanelContainer" parent="UI/Center" unique_id=407397872]
 layout_mode = 2
 script = ExtResource("8_inventory")
 
-[node name="BlacksmithPanel" type="PanelContainer" parent="UI/Center"]
+[node name="BlacksmithPanel" type="PanelContainer" parent="UI/Center" unique_id=1746193236]
 layout_mode = 2
 script = ExtResource("9_blacksmith")
 
-[node name="InnPanel" type="PanelContainer" parent="UI/Center"]
+[node name="InnPanel" type="PanelContainer" parent="UI/Center" unique_id=791241164]
 layout_mode = 2
 script = ExtResource("10_inn")
 
-[node name="PauseMenu" type="PanelContainer" parent="UI/Center"]
+[node name="PauseMenu" type="PanelContainer" parent="UI/Center" unique_id=1888349147]
 layout_mode = 2
 script = ExtResource("11_pause")
 
-[node name="HelpPanel" type="PanelContainer" parent="UI/Center"]
+[node name="HelpPanel" type="PanelContainer" parent="UI/Center" unique_id=357823490]
 layout_mode = 2
 script = ExtResource("12_help")
 
-[node name="DebugPanel" type="PanelContainer" parent="UI/Center"]
+[node name="DebugPanel" type="PanelContainer" parent="UI/Center" unique_id=1628488852]
 layout_mode = 2
 script = ExtResource("13_debug")
 
-[node name="DialoguePanel" type="PanelContainer" parent="UI/Center"]
+[node name="DialoguePanel" type="PanelContainer" parent="UI/Center" unique_id=1367393749]
 layout_mode = 2
 script = ExtResource("14_dialogue")
 
-[node name="JobsPanel" type="PanelContainer" parent="UI/Center"]
+[node name="JobsPanel" type="PanelContainer" parent="UI/Center" unique_id=487145352]
 layout_mode = 2
 script = ExtResource("15_jobs")

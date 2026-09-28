@@ -127,6 +127,8 @@ func test_movement_feel() -> void:
 	check(early > 0.0 and early < player.speed * 0.6 and later > player.speed * 0.95,
 			"movement speeds up smoothly (%.0f after 2 frames, %.0f later)" % [early, later])
 	check(stopping > 0.0 and absf(player.velocity.x) < 1.0, "and slows down smoothly when you let go")
+	var on_screen := get_viewport().get_canvas_transform() * player.global_position
+	check(on_screen.distance_to(Vector2(320, 196)) < 48.0, "the camera keeps the player near the middle of the screen (%s)" % on_screen)
 
 
 func test_combo_and_special_moves() -> void:
