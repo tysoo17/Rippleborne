@@ -85,6 +85,7 @@ func _ready() -> void:
 	EventBus.camera_shake.connect(_on_camera_shake)
 	if Game.player.position.is_finite():
 		global_position = Game.player.position
+	reset_physics_interpolation()
 
 
 func is_dead() -> bool:
@@ -329,6 +330,8 @@ func _knock_out() -> void:
 	var respawn := get_tree().get_first_node_in_group("respawn_point") as Node2D
 	if respawn != null:
 		global_position = respawn.global_position
+		reset_physics_interpolation()
+		camera.reset_physics_interpolation()
 	GameClock.advance_to_next_morning()
 	EventBus.news.emit("You were knocked out and woke up at the inn. You lost %d gold." % lost, "warning")
 	sprite.modulate = Color.WHITE

@@ -69,4 +69,5 @@ func _teleport(tile: Vector2i) -> void:
 	var player := get_tree().get_first_node_in_group("player") as Player
 	if player != null:
 		player.global_position = Vector2(tile * 32) + Vector2(16, 30)
+		player.reset_physics_interpolation()
 		close()
