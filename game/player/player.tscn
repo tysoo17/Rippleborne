@@ -66,4 +66,5 @@ position = Vector2(0, -10)
 shape = SubResource("CircleShape2D_reach")
 
 [node name="Camera2D" type="Camera2D" parent="."]
+process_callback = 0
 position = Vector2(0, -16)
