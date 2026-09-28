@@ -11,3 +11,4 @@ func _ready() -> void:
 	var player := get_tree().get_first_node_in_group("player") as Player
 	if player != null:
 		player.set_camera_limits(Rect2i(Vector2i.ZERO, map_size * 32))
+	WorldDecor.decorate(self)
